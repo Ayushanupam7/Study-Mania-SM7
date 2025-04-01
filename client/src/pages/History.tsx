@@ -147,7 +147,7 @@ const History = () => {
         <Button
           variant="outline"
           onClick={exportToPDF}
-          disabled={!dateRange.from || !dateRange.to}
+          disabled={!dateRange?.from || !dateRange?.to}
           className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50"
         >
           <Download className="h-5 w-5 mr-2" />
@@ -239,7 +239,7 @@ const History = () => {
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                  {dateRange.from && dateRange.to
+                  {dateRange?.from && dateRange?.to
                     ? 'No study sessions recorded for this date range.'
                     : 'No study sessions recorded yet. Start studying to track your progress.'}
                 </TableCell>
