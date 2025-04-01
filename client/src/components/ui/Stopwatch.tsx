@@ -1,7 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import { Play, Pause, RotateCcw, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStudyContext } from '@/context/StudyContext';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 type StopwatchProps = {
   subjectId?: number | null;
@@ -11,12 +22,21 @@ type StopwatchProps = {
 const Stopwatch = ({ subjectId = null, onComplete }: StopwatchProps) => {
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
+  const [previousRunTime, setPreviousRunTime] = useState(0); // Track time when stopwatch was last paused
+  const [hasStarted, setHasStarted] = useState(false); // Track if stopwatch has been started
+  const [showSaveDialog, setShowSaveDialog] = useState(false); // For save dialog
+  const [sessionComments, setSessionComments] = useState(''); // For session comments
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const { recordStudySession } = useStudyContext();
+  const { recordStudySession, subjects } = useStudyContext();
+  const { toast } = useToast();
 
   const hours = Math.floor(time / 3600);
   const minutes = Math.floor((time % 3600) / 60);
   const seconds = time % 60;
+  
+  const subjectName = subjectId 
+    ? subjects.find(s => s.id === subjectId)?.name || 'Unknown Subject'
+    : 'No Subject';
 
   useEffect(() => {
     if (isRunning) {
@@ -35,6 +55,33 @@ const Stopwatch = ({ subjectId = null, onComplete }: StopwatchProps) => {
   }, [isRunning]);
 
   const toggleStopwatch = () => {
+    if (isRunning) {
+      // When pausing the stopwatch
+      setPreviousRunTime(time);
+      
+      // Show save dialog if we have time and a subject
+      if (time > 0 && subjectId) {
+        setSessionComments('');
+        setShowSaveDialog(true);
+      }
+    } else {
+      // When starting the stopwatch
+      setHasStarted(true);
+      
+      // If restarting, notify the user
+      if (previousRunTime > 0) {
+        toast({
+          title: "Stopwatch resumed",
+          description: `Continuing your study session for ${subjectName}.`,
+        });
+      } else {
+        toast({
+          title: "Stopwatch started",
+          description: `Starting a new study session for ${subjectName}.`,
+        });
+      }
+    }
+    
     setIsRunning(!isRunning);
   };
 
@@ -60,6 +107,43 @@ const Stopwatch = ({ subjectId = null, onComplete }: StopwatchProps) => {
   };
 
   const padZero = (num: number) => num.toString().padStart(2, '0');
+
+  // Handle saving the session with comments
+  const handleSaveSession = () => {
+    if (subjectId && time > 0) {
+      // Record the study session with comments
+      recordStudySession(subjectId, time, sessionComments);
+      
+      toast({
+        title: "Session saved",
+        description: `Your ${minutes} min ${seconds} sec study session was saved.`,
+      });
+      
+      // Reset states
+      setShowSaveDialog(false);
+      setSessionComments('');
+      setPreviousRunTime(0);
+      setTime(0);
+    }
+  };
+  
+  // Skip saving session but still record it
+  const handleSkipSave = () => {
+    if (subjectId && time > 0) {
+      // Record the session without comments
+      recordStudySession(subjectId, time);
+      toast({
+        title: "Session recorded",
+        description: `${minutes} min ${seconds} sec study session recorded.`,
+      });
+    }
+    
+    // Reset states
+    setShowSaveDialog(false);
+    setSessionComments('');
+    setPreviousRunTime(0);
+    setTime(0);
+  };
 
   return (
     <div className="bg-slate-50 rounded-xl p-8 text-center mb-8">
@@ -106,6 +190,53 @@ const Stopwatch = ({ subjectId = null, onComplete }: StopwatchProps) => {
           Reset
         </Button>
       </div>
+      
+      {/* Save Session Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Save className="h-5 w-5 mr-2 text-primary" />
+              Save Study Session
+            </DialogTitle>
+            <DialogDescription>
+              Save your {Math.floor(time / 60)}m {time % 60}s study session for {subjectName}.
+              Add some notes about what you accomplished.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Label htmlFor="comments" className="text-sm font-medium">
+              Session Notes <span className="text-slate-400">(optional)</span>
+            </Label>
+            <Textarea
+              id="comments"
+              placeholder="What did you study? What progress did you make?"
+              value={sessionComments}
+              onChange={(e) => setSessionComments(e.target.value)}
+              className="mt-2 resize-none"
+              rows={4}
+            />
+          </div>
+          
+          <DialogFooter className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleSkipSave}
+              className="px-4 py-2"
+            >
+              Skip
+            </Button>
+            <Button 
+              onClick={handleSaveSession}
+              className="px-4 py-2 flex items-center"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save Session
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
