@@ -38,7 +38,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { jsPDF } from "jspdf"; // Added jspdf import
+import { jsPDF } from "jspdf";
+import 'jspdf-autotable';
 
 
 type EditingSession = {
