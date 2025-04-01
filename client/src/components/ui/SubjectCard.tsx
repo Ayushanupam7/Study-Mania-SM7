@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Pencil, Trash2 } from 'lucide-react';
+import { BookOpen, Clock, Calendar, Pencil, Trash2 } from 'lucide-react';
 import { 
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useStudyContext } from '@/context/StudyContext';
 import { formatStudyTime } from '@/lib/utils';
+import { useLocation } from 'wouter';
 
 type SubjectCardProps = {
   id: number;
@@ -46,15 +47,54 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
 
   const formattedStudyTime = formatStudyTime(totalStudyTime);
 
+  const [, navigate] = useLocation();
+  
+  const handleSubjectClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    // Create a smooth transition effect
+    const card = e.currentTarget;
+    card.style.transform = 'scale(0.98)';
+    card.style.boxShadow = '0 0 0 3px rgba(66, 153, 225, 0.5)';
+    
+    // Navigate after a short delay for visual effect
+    setTimeout(() => {
+      navigate(`/subjects/${id}`);
+    }, 120);
+  };
+  
   return (
     <>
-      <Card className={`bg-white rounded-lg shadow-sm overflow-hidden border-t-4 ${colorClass} cursor-pointer transition-all hover:shadow-md`}>
+      <Card 
+        className={`bg-white rounded-lg shadow-sm overflow-hidden border-t-4 ${colorClass} cursor-pointer transform transition-all duration-150 hover:shadow-md`}
+      >
         <div className="relative">
-          <a href={`/subjects/${id}`} className="block p-4">
-            <h3 className="font-semibold text-lg mb-1">{name}</h3>
-            <p className="text-sm text-slate-600 mb-2">{description}</p>
-            <p className="text-xs text-slate-500">Total study time: {formattedStudyTime}</p>
-          </a>
+          <div className="p-4" onClick={handleSubjectClick}>
+            <div className="flex items-start justify-between mb-3">
+              <h3 className="font-semibold text-lg">{name}</h3>
+              <div className="flex gap-1 items-center text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
+                <Clock className="h-3 w-3" />
+                <span>{formattedStudyTime}</span>
+              </div>
+            </div>
+            
+            <p className="text-sm text-slate-600 mb-3">{description}</p>
+            
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              <div className="flex flex-col items-center justify-center p-1 bg-slate-50 rounded-md text-slate-600">
+                <Clock className="h-4 w-4 mb-1" />
+                <span className="text-xs">Study</span>
+              </div>
+              <div className="flex flex-col items-center justify-center p-1 bg-slate-50 rounded-md text-slate-600">
+                <BookOpen className="h-4 w-4 mb-1" />
+                <span className="text-xs">Flashcards</span>
+              </div>
+              <div className="flex flex-col items-center justify-center p-1 bg-slate-50 rounded-md text-slate-600">
+                <Calendar className="h-4 w-4 mb-1" />
+                <span className="text-xs">Tasks</span>
+              </div>
+            </div>
+          </div>
+          
           <div className="flex border-t border-slate-100 text-sm">
             <button 
               className="flex-1 py-2 text-slate-600 hover:bg-slate-50 flex justify-center"

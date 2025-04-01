@@ -107,20 +107,78 @@ const SubjectDetail = () => {
   }
   
   return (
-    <div>
+    <div className="animate-fadeIn">
       <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold">
-            <span className={subject.colorClass}>{subject.name}</span>
+        <div className="flex-1 min-w-0">
+          <h1 className={`text-2xl font-semibold mb-1 ${subject.colorClass.replace('border', 'text')}`}>
+            {subject.name}
           </h1>
-          <p className="text-slate-600">{subject.description}</p>
+          <p className="text-slate-600 text-sm truncate">{subject.description}</p>
         </div>
-        <div className="flex flex-col items-end">
-          <div className="text-xl font-medium">
-            Total Study Time: {formatStudyTime(totalStudyTime)}
+        <div className="flex flex-col items-end ml-4">
+          <div className="flex items-center gap-2 py-1 px-3 bg-blue-50 text-blue-700 rounded-lg mb-1">
+            <Clock className="h-4 w-4" />
+            <div className="text-lg font-medium">
+              {formatStudyTime(totalStudyTime)}
+            </div>
           </div>
-          <div className="text-sm text-slate-600">
-            {subjectSessions.length} Study Sessions
+          <div className="text-xs text-slate-600 flex items-center gap-1">
+            <History className="h-3 w-3" /> {subjectSessions.length} Study Sessions
+          </div>
+        </div>
+      </div>
+      
+      {/* Progress metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 animate-slideUp" style={{ animationDelay: '100ms' }}>
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-medium text-slate-500">Last session</h3>
+            <Clock className="h-4 w-4 text-slate-400" />
+          </div>
+          {sortedSessions.length > 0 ? (
+            <div className="mt-2">
+              <div className="text-lg font-medium">
+                {formatStudyTime(sortedSessions[0].duration)}
+              </div>
+              <p className="text-xs text-slate-500">
+                {format(new Date(sortedSessions[0].date), 'MMMM d, yyyy')}
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm italic text-slate-400 mt-2">No sessions yet</p>
+          )}
+        </div>
+        
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-medium text-slate-500">Completion rate</h3>
+            <Check className="h-4 w-4 text-slate-400" />
+          </div>
+          <div className="mt-2">
+            <div className="text-lg font-medium">
+              {subjectPlannerItems.length > 0
+                ? `${Math.round((subjectPlannerItems.filter(item => item.isCompleted).length / subjectPlannerItems.length) * 100)}%`
+                : '0%'
+              }
+            </div>
+            <p className="text-xs text-slate-500">
+              {subjectPlannerItems.filter(item => item.isCompleted).length} of {subjectPlannerItems.length} tasks completed
+            </p>
+          </div>
+        </div>
+        
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-medium text-slate-500">Flashcards</h3>
+            <BookOpen className="h-4 w-4 text-slate-400" />
+          </div>
+          <div className="mt-2">
+            <div className="text-lg font-medium">
+              {subjectFlashcards.length}
+            </div>
+            <p className="text-xs text-slate-500">
+              {subjectFlashcards.length === 1 ? 'Flashcard' : 'Flashcards'} created
+            </p>
           </div>
         </div>
       </div>

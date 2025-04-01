@@ -367,36 +367,53 @@ const Planner = () => {
         
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           {studySessions.length > 0 ? (
-            <div className="divide-y divide-slate-100">
-              {studySessions
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .slice(0, 5) // Show the latest 5 sessions
-                .map(session => {
-                  const subject = subjects.find(s => s.id === session.subjectId);
-                  return (
-                    <div key={session.id} className="p-4 flex items-center gap-4">
-                      <div className="min-w-[40px] h-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                        <Clock className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">
-                          {subject?.name || 'Unknown Subject'}
+            <div className="overflow-x-auto">
+              <div className="flex gap-4 p-4" style={{ minWidth: "100%", width: "max-content" }}>
+                {studySessions
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .slice(0, 8) // Show more sessions in the horizontal scroll
+                  .map(session => {
+                    const subject = subjects.find(s => s.id === session.subjectId);
+                    const colorClass = subject?.colorClass || "border-blue-500";
+                    const textColorClass = colorClass.replace("border", "text");
+                    
+                    return (
+                      <div 
+                        key={session.id} 
+                        className="flex-shrink-0 w-64 p-4 rounded-lg border border-slate-200 hover:shadow-md transition-shadow"
+                      >
+                        <div className="flex items-start gap-3 mb-2">
+                          <div className="min-w-[36px] h-9 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                            <Clock className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <div className={`font-medium ${textColorClass}`}>
+                              {subject?.name || 'Unknown Subject'}
+                            </div>
+                            <div className="text-sm text-slate-500">
+                              {format(new Date(session.date), 'MMM d • h:mm a')}
+                            </div>
+                          </div>
+                          {isToday(new Date(session.date)) && (
+                            <div className="ml-auto px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                              Today
+                            </div>
+                          )}
                         </div>
-                        <div className="text-sm text-slate-500">
-                          {format(new Date(session.date), 'MMMM d, yyyy • h:mm a')} • {session.duration} minutes
+                        
+                        <div className="text-lg font-medium text-center py-2 border-t border-b border-slate-100 my-2">
+                          {session.duration} minutes
                         </div>
-                        {session.comments && (
-                          <p className="mt-1 text-sm text-slate-600">{session.comments}</p>
+                        
+                        {session.comments ? (
+                          <p className="text-sm text-slate-600 line-clamp-2">{session.comments}</p>
+                        ) : (
+                          <p className="text-sm text-slate-400 italic">No comments</p>
                         )}
                       </div>
-                      {isToday(new Date(session.date)) && (
-                        <div className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-                          Today
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+              </div>
             </div>
           ) : (
             <div className="text-center py-8">
