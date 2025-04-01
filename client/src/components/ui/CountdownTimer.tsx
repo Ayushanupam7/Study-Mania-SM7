@@ -30,15 +30,23 @@ const CountdownTimer = ({
         setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (timeLeft === 0 && isRunning) {
+      console.log("TIMER COMPLETED! Time left:", timeLeft, "isRunning:", isRunning);
       setIsRunning(false);
+      
       if (onComplete) {
+        console.log("Calling onComplete callback");
         onComplete();
       }
       
       // Record the study session
       if (subjectId) {
         console.log("Recording study session for subject:", subjectId, "duration:", initialTimeInMinutes * 60);
-        recordStudySession(subjectId, initialTimeInMinutes * 60);
+        
+        // Add a short delay to ensure state updates are processed first
+        setTimeout(() => {
+          recordStudySession(subjectId, initialTimeInMinutes * 60);
+          console.log("Study session recorded after timer completion");
+        }, 100);
       } else {
         console.log("No subject selected, study session not recorded");
       }

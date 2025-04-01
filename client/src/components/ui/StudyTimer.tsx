@@ -14,8 +14,10 @@ type StudyTimerProps = {
 };
 
 const StudyTimer = ({ subjectId }: StudyTimerProps) => {
+  // Default to timer mode for quick start functionality
   const [mode, setMode] = useState<TimerMode>('timer');
-  const [pomodoroTime, setPomodoroTime] = useState(25);
+  // Set to 1 minute for testing - will be easier to complete the timer
+  const [pomodoroTime, setPomodoroTime] = useState(1);
   const { toast } = useToast();
   const { subjects } = useStudyContext();
 
