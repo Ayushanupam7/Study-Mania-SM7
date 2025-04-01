@@ -48,25 +48,33 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
 
   return (
     <>
-      <Card className={`bg-white rounded-lg shadow-sm overflow-hidden border-t-4 ${colorClass}`}>
-        <div className="p-4">
-          <h3 className="font-semibold text-lg mb-1">{name}</h3>
-          <p className="text-sm text-slate-600 mb-2">{description}</p>
-          <p className="text-xs text-slate-500">Total study time: {formattedStudyTime}</p>
-        </div>
-        <div className="flex border-t border-slate-100 text-sm">
-          <button 
-            className="flex-1 py-2 text-slate-600 hover:bg-slate-50 flex justify-center"
-            onClick={() => setIsEditDialogOpen(true)}
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
-          <button 
-            className="flex-1 py-2 text-slate-600 hover:bg-slate-50 flex justify-center"
-            onClick={() => setIsDeleteDialogOpen(true)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+      <Card className={`bg-white rounded-lg shadow-sm overflow-hidden border-t-4 ${colorClass} cursor-pointer transition-all hover:shadow-md`}>
+        <div className="relative">
+          <a href={`/subjects/${id}`} className="block p-4">
+            <h3 className="font-semibold text-lg mb-1">{name}</h3>
+            <p className="text-sm text-slate-600 mb-2">{description}</p>
+            <p className="text-xs text-slate-500">Total study time: {formattedStudyTime}</p>
+          </a>
+          <div className="flex border-t border-slate-100 text-sm">
+            <button 
+              className="flex-1 py-2 text-slate-600 hover:bg-slate-50 flex justify-center"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsEditDialogOpen(true);
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+            <button 
+              className="flex-1 py-2 text-slate-600 hover:bg-slate-50 flex justify-center"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsDeleteDialogOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </Card>
 
