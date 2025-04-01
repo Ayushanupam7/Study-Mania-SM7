@@ -66,8 +66,14 @@ const Settings = () => {
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div className="flex items-center">
           <Avatar className="w-16 h-16 text-2xl bg-primary text-white mr-4">
-            <span>{user?.name?.charAt(0) || 'A'}</span>
-          </Avatar>
+              {user?.photoUrl ? (
+                <AvatarImage src={user.photoUrl} alt={user.name} className="object-cover" />
+              ) : (
+                <AvatarFallback className="bg-primary text-white">
+                  {user?.name?.charAt(0) || 'A'}
+                </AvatarFallback>
+              )}
+            </Avatar>
           <div>
             <p className="font-medium text-lg">{user?.name || 'Ayush'}</p>
             <p className="text-slate-500">default</p>
