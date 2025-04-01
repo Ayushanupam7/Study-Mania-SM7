@@ -59,20 +59,20 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
   const formattedStudyTime = formatStudyTime(totalStudyTime);
 
   const [, navigate] = useLocation();
-
+  
   const handleSubjectClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     // Create a smooth transition effect
     const card = e.currentTarget;
     card.style.transform = 'scale(0.98)';
     card.style.boxShadow = '0 0 0 3px rgba(66, 153, 225, 0.5)';
-
+    
     // Navigate after a short delay for visual effect
     setTimeout(() => {
       navigate(`/subjects/${id}`);
     }, 120);
   };
-
+  
   return (
     <>
       <Card 
@@ -94,9 +94,9 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
                 <span>{formattedStudyTime}</span>
               </div>
             </div>
-
+            
             <p className="text-sm text-white/80 mb-3">{description}</p>
-
+            
             <div className="grid grid-cols-3 gap-2 mb-2">
               <div className="flex flex-col items-center justify-center p-1 bg-white/10 rounded-md text-white backdrop-blur-sm">
                 <Clock className="h-4 w-4 mb-1" />
@@ -112,7 +112,7 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
               </div>
             </div>
           </div>
-
+          
           <div className="flex border-t border-white/10 text-sm">
             <button 
               className="flex-1 py-2 text-white hover:bg-white/10 flex justify-center"
