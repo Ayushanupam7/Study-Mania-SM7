@@ -4,6 +4,8 @@ import { formatStudyTime } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import StudyTimer from '@/components/ui/StudyTimer';
+import { Button } from '@/components/ui/button';
+import { Play } from 'lucide-react';
 
 const StudyTime = () => {
   const { subjects, getTotalStudyTimeForToday } = useStudyContext();
@@ -31,24 +33,43 @@ const StudyTime = () => {
         >
           Select a subject for this study session:
         </Label>
-        <Select 
-          value={selectedSubjectId?.toString() || 'no-subject'} 
-          onValueChange={(value) => 
-            setSelectedSubjectId(value === 'no-subject' ? null : parseInt(value))
-          }
-        >
-          <SelectTrigger className="w-full bg-white">
-            <SelectValue placeholder="No Subject" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="no-subject">No Subject</SelectItem>
-            {subjects.map((subject) => (
-              <SelectItem key={subject.id} value={subject.id.toString()}>
-                {subject.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <Select 
+              value={selectedSubjectId?.toString() || 'no-subject'} 
+              onValueChange={(value) => 
+                setSelectedSubjectId(value === 'no-subject' ? null : parseInt(value))
+              }
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="No Subject" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="no-subject">No Subject</SelectItem>
+                {subjects.map((subject) => (
+                  <SelectItem key={subject.id} value={subject.id.toString()}>
+                    {subject.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <Button 
+            className="bg-primary text-white hover:bg-blue-700 flex items-center"
+            onClick={() => {
+              // Get the reference to the Start button in the timer component
+              const startButton = document.querySelector('[data-timer-start-button="true"]') as HTMLButtonElement;
+              if (startButton) {
+                startButton.click();
+              }
+            }}
+            disabled={!selectedSubjectId}
+          >
+            <Play className="h-5 w-5 mr-2" />
+            Quick Start
+          </Button>
+        </div>
       </div>
       
       {/* Timer Component */}

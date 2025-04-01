@@ -82,6 +82,7 @@ const CountdownTimer = ({
         <Button 
           className="px-6 py-2 bg-primary text-white rounded-md font-medium hover:bg-blue-600 flex items-center"
           onClick={toggleTimer}
+          data-timer-start-button="true"
         >
           {isRunning ? (
             <>
