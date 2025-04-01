@@ -133,17 +133,17 @@ const PlannerItem = ({
                   Subject
                 </label>
                 <Select 
-                  value={editFormData.subjectId?.toString() || ''} 
+                  value={editFormData.subjectId?.toString() || 'null'} 
                   onValueChange={(value) => setEditFormData({
                     ...editFormData,
-                    subjectId: value ? parseInt(value) : null
+                    subjectId: value === 'null' ? null : parseInt(value)
                   })}
                 >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select a subject" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Subject</SelectItem>
+                    <SelectItem value="null">No Subject</SelectItem>
                     {subjects.map((subject) => (
                       <SelectItem key={subject.id} value={subject.id.toString()}>
                         {subject.name}
