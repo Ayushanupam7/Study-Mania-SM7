@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import CountdownTimer from '@/components/ui/CountdownTimer';
 import Stopwatch from '@/components/ui/Stopwatch';
-import { Clock } from 'lucide-react';
+import { Clock, Star, History } from 'lucide-react';
 import { useStudyContext } from '@/context/StudyContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,13 +16,49 @@ type StudyTimerProps = {
   subjectId: number | null;
 };
 
+// Helper function to get saved durations from localStorage
+const getSavedDurations = (): number[] => {
+  try {
+    const saved = localStorage.getItem('studyMania_savedDurations');
+    return saved ? JSON.parse(saved) : [5, 25, 45, 60];
+  } catch (error) {
+    console.error("Error parsing saved durations:", error);
+    return [5, 25, 45, 60];
+  }
+};
+
+// Helper function to save durations to localStorage
+const saveDuration = (duration: number) => {
+  try {
+    const currentSaved = getSavedDurations();
+    // Only add if it doesn't already exist
+    if (!currentSaved.includes(duration)) {
+      // Keep only the last 5 unique durations
+      const newSaved = [duration, ...currentSaved].slice(0, 5);
+      localStorage.setItem('studyMania_savedDurations', JSON.stringify(newSaved));
+    }
+  } catch (error) {
+    console.error("Error saving duration:", error);
+  }
+};
+
 const StudyTimer = ({ subjectId }: StudyTimerProps) => {
   // Default to timer mode for quick start functionality
   const [mode, setMode] = useState<TimerMode>('timer');
   // Default time set to 5 minutes
   const [pomodoroTime, setPomodoroTime] = useState(5);
+  // Track saved/recent durations
+  const [savedDurations, setSavedDurations] = useState<number[]>([]);
+  // Track if timer is active
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  
   const { toast } = useToast();
   const { subjects } = useStudyContext();
+  
+  // Load saved durations on component mount
+  useEffect(() => {
+    setSavedDurations(getSavedDurations());
+  }, []);
 
   const subjectName = subjectId 
     ? subjects.find(s => s.id === subjectId)?.name || 'Unknown Subject'
@@ -30,8 +67,22 @@ const StudyTimer = ({ subjectId }: StudyTimerProps) => {
   const handlePomodoroPresetClick = (minutes: number) => {
     setPomodoroTime(minutes);
   };
+  
+  const handleStartTimer = () => {
+    // Save the current duration to localStorage
+    saveDuration(pomodoroTime);
+    // Update the saved durations in the state
+    setSavedDurations(getSavedDurations());
+    setIsTimerActive(true);
+    
+    toast({
+      title: "Timer started!",
+      description: `Starting a ${pomodoroTime} minute study session for ${subjectName}.`,
+    });
+  };
 
   const handleTimerComplete = () => {
+    setIsTimerActive(false);
     toast({
       title: "Timer completed!",
       description: `Your ${pomodoroTime} minute study session for ${subjectName} is complete.`,

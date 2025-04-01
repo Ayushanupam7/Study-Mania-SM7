@@ -1,7 +1,34 @@
 import { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import { Play, Pause, RotateCcw, Clock, History, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useStudyContext } from '@/context/StudyContext';
+
+// Helper function to get saved durations from localStorage
+const getSavedDurations = (): number[] => {
+  try {
+    const saved = localStorage.getItem('studyMania_savedDurations');
+    return saved ? JSON.parse(saved) : [5, 25, 45, 60];
+  } catch (error) {
+    console.error("Error parsing saved durations:", error);
+    return [5, 25, 45, 60];
+  }
+};
+
+// Helper function to save durations to localStorage
+const saveDuration = (duration: number) => {
+  try {
+    const currentSaved = getSavedDurations();
+    // Only add if it doesn't already exist
+    if (!currentSaved.includes(duration)) {
+      // Keep only the last 5 unique durations
+      const newSaved = [duration, ...currentSaved].slice(0, 5);
+      localStorage.setItem('studyMania_savedDurations', JSON.stringify(newSaved));
+    }
+  } catch (error) {
+    console.error("Error saving duration:", error);
+  }
+};
 
 type CountdownTimerProps = {
   initialTimeInMinutes?: number;
@@ -16,7 +43,16 @@ const CountdownTimer = ({
 }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(initialTimeInMinutes * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const [savedDurations, setSavedDurations] = useState<number[]>([]);
+  // Track if timer has been started at least once in this session
+  const [hasStarted, setHasStarted] = useState(false);
+  
   const { recordStudySession } = useStudyContext();
+  
+  // Load saved durations on component mount
+  useEffect(() => {
+    setSavedDurations(getSavedDurations());
+  }, []);
 
   const hours = Math.floor(timeLeft / 3600);
   const minutes = Math.floor((timeLeft % 3600) / 60);
@@ -59,7 +95,18 @@ const CountdownTimer = ({
     };
   }, [isRunning, timeLeft, onComplete, recordStudySession, subjectId, initialTimeInMinutes]);
 
+  // Track when timer changes to update UI accordingly
+  useEffect(() => {
+    setTimeLeft(initialTimeInMinutes * 60);
+  }, [initialTimeInMinutes]);
+
   const toggleTimer = () => {
+    if (!isRunning) {
+      // Save the current duration when starting
+      saveDuration(initialTimeInMinutes);
+      setSavedDurations(getSavedDurations());
+      setHasStarted(true);
+    }
     setIsRunning(!isRunning);
   };
 
@@ -68,11 +115,39 @@ const CountdownTimer = ({
     setTimeLeft(initialTimeInMinutes * 60);
     console.log("Timer reset");
   };
+  
+  const setDuration = (minutes: number) => {
+    if (!isRunning) {
+      setTimeLeft(minutes * 60);
+    }
+  };
 
   const padZero = (num: number) => num.toString().padStart(2, '0');
 
   return (
     <div className="bg-slate-50 rounded-xl p-8 text-center mb-8">
+      {/* Show saved durations after starting at least once */}
+      {hasStarted && !isRunning && savedDurations.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center mb-2">
+            <History className="h-4 w-4 mr-2 text-slate-500" />
+            <span className="text-sm font-medium text-slate-600">Recently Used</span>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {savedDurations.map((duration) => (
+              <Badge 
+                key={duration} 
+                variant="outline"
+                className="px-3 py-1 cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => setDuration(duration)}
+              >
+                {duration} min
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+      
       <div className="flex justify-center items-baseline space-x-2">
         <div className="timer-digit">
           <span className="text-5xl font-semibold text-blue-600">{padZero(hours)}</span>
