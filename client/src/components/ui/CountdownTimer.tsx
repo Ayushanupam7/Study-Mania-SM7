@@ -129,10 +129,21 @@ const CountdownTimer = ({
 
   const toggleTimer = () => {
     if (!isRunning) {
-      // Save the current duration when starting
+      // When starting the timer
       saveDuration(initialTimeInMinutes);
       setSavedDurations(getSavedDurations());
       setHasStarted(true);
+      setIsCompleted(false);
+    } else {
+      // When pausing the timer (stopping the timer)
+      // Calculate elapsed time in seconds
+      const elapsedSeconds = initialTimeInMinutes * 60 - timeLeft;
+      
+      if (elapsedSeconds > 0 && subjectId) {
+        // Show save dialog to record the partial session
+        setSessionComments('');
+        setShowSaveDialog(true);
+      }
     }
     setIsRunning(!isRunning);
   };
@@ -154,11 +165,16 @@ const CountdownTimer = ({
   // Handle saving the session with comments
   const handleSaveSession = () => {
     if (subjectId) {
-      // Record the study session with comments
-      recordStudySession(subjectId, initialTimeInMinutes * 60, sessionComments);
-      console.log("Saved study session with comments:", sessionComments);
+      // Calculate the actual duration in seconds
+      const elapsedSeconds = isCompleted
+        ? initialTimeInMinutes * 60  // If completed, use full time
+        : initialTimeInMinutes * 60 - timeLeft;  // If paused, use elapsed time
       
-      // Reset the pomodoro state
+      // Record the study session with comments
+      recordStudySession(subjectId, elapsedSeconds, sessionComments);
+      console.log("Saved study session with comments:", sessionComments, "duration:", elapsedSeconds);
+      
+      // Reset the dialog state
       setShowSaveDialog(false);
       setSessionComments('');
       
@@ -170,11 +186,16 @@ const CountdownTimer = ({
   // Handle skipping session save
   const handleSkipSave = () => {
     if (subjectId) {
+      // Calculate the actual duration in seconds
+      const elapsedSeconds = isCompleted
+        ? initialTimeInMinutes * 60  // If completed, use full time
+        : initialTimeInMinutes * 60 - timeLeft;  // If paused, use elapsed time
+      
       // Record the session without comments
-      recordStudySession(subjectId, initialTimeInMinutes * 60);
+      recordStudySession(subjectId, elapsedSeconds);
     }
     
-    // Reset the pomodoro state
+    // Reset the dialog state
     setShowSaveDialog(false);
     setSessionComments('');
     resetTimer();
@@ -272,8 +293,14 @@ const CountdownTimer = ({
               Save Study Session
             </DialogTitle>
             <DialogDescription>
-              Great job completing your {initialTimeInMinutes} minute 
-              {isPomodoro ? ' pomodoro' : ''} session! Add some notes about what you accomplished.
+              {isCompleted ? (
+                <>Great job completing your {initialTimeInMinutes} minute 
+                {isPomodoro ? ' pomodoro' : ''} session!</>
+              ) : (
+                <>Save your progress for this {Math.round((initialTimeInMinutes * 60 - timeLeft) / 60)} minute 
+                {isPomodoro ? ' pomodoro' : ''} study session.</>
+              )}
+              {' '}Add some notes about what you accomplished.
             </DialogDescription>
           </DialogHeader>
           

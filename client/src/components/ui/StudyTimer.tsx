@@ -193,6 +193,7 @@ const StudyTimer = ({ subjectId }: StudyTimerProps) => {
             initialTimeInMinutes={pomodoroTime} 
             subjectId={subjectId} 
             onComplete={handleTimerComplete}
+            isPomodoro={false}
           />
         </TabsContent>
         

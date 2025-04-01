@@ -169,7 +169,8 @@ const History = () => {
                 return (
                   <TableRow key={session.id}>
                     <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
-                      {format(new Date(session.date), 'MMMM d, yyyy')}
+                      <div className="font-medium">{format(new Date(session.date), 'MMMM d, yyyy')}</div>
+                      <div className="text-xs text-slate-500">{format(new Date(session.date), 'h:mm a')}</div>
                     </TableCell>
                     <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
                       {subject?.name || 'Unknown Subject'}
