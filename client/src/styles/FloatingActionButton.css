@@ -1,0 +1,97 @@
+/* 
+ * FloatingActionButton.css
+ * Styles for the floating action button component
+ */
+
+/* Container for the FAB, fixed position at bottom right */
+.fab-container {
+  position: fixed;
+  bottom: 1.5rem;  /* 6 in Tailwind = 1.5rem */
+  right: 1.5rem;
+  z-index: 50;  /* Ensure FAB appears above other content */
+}
+
+/* Main button styling */
+.fab-button {
+  width: 3.5rem;  /* 14 in Tailwind = 3.5rem */
+  height: 3.5rem;
+  border-radius: 9999px;  /* Full rounded corners */
+  background-image: linear-gradient(to top right, var(--primary-color), #60a5fa);  /* Gradient background */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+/* Hover state for main button */
+.fab-button:hover {
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+  transform: scale(1.05);
+}
+
+/* Active/pressed state for main button */
+.fab-button:active {
+  transform: scale(0.95);
+}
+
+/* Menu container styling */
+.fab-menu {
+  background-color: white;
+  border-radius: 0.375rem;  /* Rounded corners */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f1f5f9;  /* Light border */
+  padding: 0.75rem;
+  width: 16rem;  /* 64 in Tailwind = 16rem */
+}
+
+/* Section title in menu */
+.fab-menu-title {
+  font-size: 0.75rem;  /* xs in Tailwind */
+  font-weight: 500;
+  color: #64748b;  /* slate-500 */
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+/* Group divider */
+.fab-menu-group-divider {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;  /* slate-100 */
+}
+
+/* Menu item button */
+.fab-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;  /* sm in Tailwind */
+  color: #334155;  /* slate-700 */
+  border-radius: 0.375rem;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+/* Menu item hover state */
+.fab-menu-item:hover {
+  background-color: #f8fafc;  /* slate-50 */
+  transform: translateX(3px);
+}
+
+/* Menu item active/pressed state */
+.fab-menu-item:active {
+  transform: scale(0.98);
+}
+
+/* Icon styles in menu items */
+.fab-icon {
+  margin-right: 0.75rem;
+}
+
+/* Animation classes (complementing framer-motion) */
+.rotate-45 {
+  transform: rotate(45deg);
+}

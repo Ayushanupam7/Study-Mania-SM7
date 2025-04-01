@@ -1,0 +1,221 @@
+/*
+ * SubjectDetail.css
+ * Styles for the subject detail page and components
+ */
+
+/* Header area with subject info */
+.subject-header {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Background color classes for different subjects */
+.bg-blue-gradient {
+  background: linear-gradient(to right, #3b82f6, #60a5fa);
+  color: white;
+}
+
+.bg-green-gradient {
+  background: linear-gradient(to right, #10b981, #34d399);
+  color: white;
+}
+
+.bg-purple-gradient {
+  background: linear-gradient(to right, #8b5cf6, #a78bfa);
+  color: white;
+}
+
+.bg-orange-gradient {
+  background: linear-gradient(to right, #f59e0b, #fbbf24);
+  color: white;
+}
+
+.bg-red-gradient {
+  background: linear-gradient(to right, #ef4444, #f87171);
+  color: white;
+}
+
+/* Subject title in header */
+.subject-title {
+  font-size: 1.875rem;  /* 3xl in Tailwind */
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+/* Subject description in header */
+.subject-description {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+
+/* Stats container in subject header */
+.subject-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+/* Individual stat items */
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat-value {
+  font-size: 1.5rem;  /* 2xl in Tailwind */
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.875rem;  /* sm in Tailwind */
+  opacity: 0.8;
+}
+
+/* Tabs container */
+.tabs-container {
+  margin-bottom: 2rem;
+}
+
+/* Tab list styles */
+.tabs-list {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;  /* slate-200 in Tailwind */
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;  /* For Firefox */
+}
+
+.tabs-list::-webkit-scrollbar {
+  display: none;  /* For Chrome, Safari, and Opera */
+}
+
+/* Individual tab button */
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  color: #64748b;  /* slate-500 in Tailwind */
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  color: #334155;  /* slate-700 in Tailwind */
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* Note editor area */
+.note-editor {
+  background-color: white;
+  border: 1px solid #e2e8f0;  /* slate-200 in Tailwind */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  min-height: 200px;
+  margin-bottom: 1rem;
+}
+
+/* Session list styles */
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Session item card */
+.session-item {
+  background-color: white;
+  border: 1px solid #e2e8f0;  /* slate-200 in Tailwind */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.session-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.session-date {
+  font-size: 0.875rem;  /* sm in Tailwind */
+  color: #64748b;  /* slate-500 in Tailwind */
+}
+
+.session-duration {
+  font-weight: 600;
+  color: #334155;  /* slate-700 in Tailwind */
+}
+
+.session-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Action buttons for sessions */
+.session-action-button {
+  padding: 0.5rem;
+  border-radius: 0.375rem;  /* md in Tailwind */
+  color: #64748b;  /* slate-500 in Tailwind */
+  transition: background-color 0.15s ease;
+}
+
+.session-action-button:hover {
+  background-color: #f8fafc;  /* slate-50 in Tailwind */
+}
+
+/* Session comments */
+.session-comments {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e2e8f0;  /* slate-200 in Tailwind */
+  font-size: 0.875rem;  /* sm in Tailwind */
+  color: #475569;  /* slate-600 in Tailwind */
+}
+
+/* Flashcard area in subject detail */
+.flashcards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Individual flashcard */
+.flashcard {
+  background-color: white;
+  border: 1px solid #e2e8f0;  /* slate-200 in Tailwind */
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.flashcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.flashcard-question {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #334155;  /* slate-700 in Tailwind */
+}
+
+.flashcard-answer {
+  color: #475569;  /* slate-600 in Tailwind */
+  font-size: 0.875rem;  /* sm in Tailwind */
+}

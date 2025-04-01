@@ -1,0 +1,174 @@
+/*
+ * Layout.css
+ * Styles for the main application layout structure
+ */
+
+/* Main container for the application */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;  /* slate-50 in Tailwind */
+}
+
+/* Sidebar styles */
+.sidebar {
+  width: 250px;
+  background-color: white;
+  border-right: 1px solid #e2e8f0;  /* slate-200 in Tailwind */
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 40;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* App logo and header area */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.app-logo {
+  font-weight: 700;
+  font-size: 1.25rem;  /* xl in Tailwind */
+  color: #111827;  /* gray-900 in Tailwind */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-icon {
+  color: var(--primary-color);
+}
+
+/* Navigation menu in sidebar */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.nav-section {
+  margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+  font-size: 0.75rem;  /* xs in Tailwind */
+  font-weight: 600;
+  color: #64748b;  /* slate-500 in Tailwind */
+  padding: 0 1.25rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  color: #475569;  /* slate-600 in Tailwind */
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+  position: relative;
+}
+
+.nav-link:hover {
+  background-color: #f8fafc;  /* slate-50 in Tailwind */
+}
+
+.nav-link.active {
+  color: var(--primary-color);
+  background-color: #eff6ff;  /* blue-50 in Tailwind */
+  font-weight: 600;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--primary-color);
+}
+
+.nav-link-icon {
+  width: 1.25rem;  /* w-5 in Tailwind */
+  height: 1.25rem;  /* h-5 in Tailwind */
+  margin-right: 0.75rem;
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  margin-left: 250px;  /* Same as sidebar width */
+  width: calc(100% - 250px);
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+/* Page header area */
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 1.875rem;  /* 3xl in Tailwind */
+  font-weight: 700;
+  color: #111827;  /* gray-900 in Tailwind */
+  margin-bottom: 0.5rem;
+}
+
+.page-description {
+  color: #475569;  /* slate-600 in Tailwind */
+  font-size: 1rem;
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 1.5rem;
+  }
+  
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background-color: white;
+    border-bottom: 1px solid #e2e8f0;  /* slate-200 in Tailwind */
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+  
+  .menu-trigger {
+    padding: 0.5rem;
+    color: #475569;  /* slate-600 in Tailwind */
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+}

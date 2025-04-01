@@ -104,10 +104,16 @@ const FloatingActionButton = () => {
   const actions: ActionItem[] = actionGroups.flatMap(group => group.items);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50" ref={ref}>
+    <div className="fab-container" ref={ref}>
+      {/* Floating Action Button Container
+         - Fixed position at bottom right of the screen
+         - Reference for click-away detection */}
       <div className="relative">
+        {/* Main FAB Button
+           - Uses framer-motion for smooth animations
+           - Changes appearance when open/closed */}
         <motion.button 
-          className="w-14 h-14 rounded-full bg-gradient-to-tr from-primary to-blue-400 text-white flex items-center justify-center shadow-xl hover:shadow-blue-200/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="fab-button"
           onClick={() => setIsOpen(!isOpen)}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -118,10 +124,14 @@ const FloatingActionButton = () => {
               : '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
           }}
           transition={{ duration: 0.2 }}
+          aria-label="Open menu"
         >
           <Plus className="h-6 w-6" />
         </motion.button>
         
+        {/* Menu Container with Animation
+           - Only renders when open
+           - AnimatePresence handles enter/exit animations */}
         <AnimatePresence>
           {isOpen && (
             <motion.div 
@@ -131,10 +141,12 @@ const FloatingActionButton = () => {
               exit={{ opacity: 0, scale: 0.85, y: 10 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="bg-white rounded-lg shadow-xl p-3 border border-slate-100 w-64">
+              <div className="fab-menu">
                 {actionGroups.map((group, index) => (
-                  <div key={group.title} className={`${index > 0 ? 'mt-3 pt-3 border-t border-slate-100' : ''}`}>
-                    <div className="text-xs font-medium text-slate-500 mb-2 px-2">{group.title}</div>
+                  <div key={group.title} className={index > 0 ? 'fab-menu-group-divider' : ''}>
+                    {/* Group title */}
+                    <div className="fab-menu-title">{group.title}</div>
+                    
                     <div className="space-y-1">
                       {group.items.map((action, i) => (
                         <motion.button 
@@ -142,12 +154,12 @@ const FloatingActionButton = () => {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.2, delay: i * 0.05 + 0.1 }}
-                          className="flex items-center px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-md w-full text-left"
+                          className="fab-menu-item"
                           onClick={action.action}
                           whileHover={{ x: 3 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          {action.icon}
+                          <span className="fab-icon">{action.icon}</span>
                           <span>{action.label}</span>
                         </motion.button>
                       ))}

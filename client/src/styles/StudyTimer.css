@@ -1,0 +1,158 @@
+/*
+ * StudyTimer.css
+ * Styles for the timer components (CountdownTimer, Stopwatch, etc.)
+ */
+
+/* Main container for timer components */
+.timer-container {
+  background-color: #f8fafc;  /* slate-50 */
+  border-radius: 0.75rem;  /* xl in Tailwind */
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+/* Container for the timer digits display */
+.timer-display {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+/* Individual digit containers */
+.timer-digit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The digit numbers themselves */
+.timer-number {
+  font-size: 3rem;  /* 5xl in Tailwind */
+  font-weight: 600;
+  color: #3b82f6;  /* blue-600 */
+}
+
+/* Separator between digits */
+.timer-separator {
+  font-size: 3rem;  /* 5xl in Tailwind */
+  font-weight: 600;
+  color: #cbd5e1;  /* slate-400 */
+}
+
+/* Unit labels (HOURS, MINUTES, SECONDS) */
+.timer-unit {
+  font-size: 0.75rem;  /* xs in Tailwind */
+  color: #64748b;  /* slate-500 */
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+}
+
+/* Container for timer controls */
+.timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;  /* space-x-4 in Tailwind */
+  margin-top: 2rem;
+}
+
+/* Primary action button (Start/Pause) */
+.timer-button-primary {
+  padding: 0.5rem 1.5rem;  /* px-6 py-2 in Tailwind */
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 0.375rem;  /* md in Tailwind */
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.timer-button-primary:hover {
+  background-color: #2563eb;  /* blue-600 in Tailwind */
+}
+
+/* Secondary action button (Reset) */
+.timer-button-secondary {
+  padding: 0.5rem 1.5rem;  /* px-6 py-2 in Tailwind */
+  background-color: #e2e8f0;  /* slate-200 in Tailwind */
+  color: #334155;  /* slate-700 in Tailwind */
+  border-radius: 0.375rem;  /* md in Tailwind */
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.timer-button-secondary:hover {
+  background-color: #cbd5e1;  /* slate-300 in Tailwind */
+}
+
+/* Button icons */
+.timer-button-icon {
+  height: 1.25rem;  /* h-5 in Tailwind */
+  width: 1.25rem;  /* w-5 in Tailwind */
+  margin-right: 0.5rem;
+}
+
+/* Saved durations section */
+.saved-durations {
+  margin-bottom: 1.5rem;
+}
+
+.saved-durations-title {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;  /* sm in Tailwind */
+  font-weight: 500;
+  color: #64748b;  /* slate-600 in Tailwind */
+}
+
+.saved-durations-icon {
+  height: 1rem;  /* h-4 in Tailwind */
+  width: 1rem;  /* w-4 in Tailwind */
+  margin-right: 0.5rem;
+  color: #64748b;  /* slate-500 in Tailwind */
+}
+
+.saved-durations-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.duration-badge {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  border: 1px solid #e2e8f0;  /* slate-200 in Tailwind */
+  border-radius: 9999px;  /* Full rounded */
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.duration-badge:hover {
+  background-color: #f1f5f9;  /* slate-100 in Tailwind */
+}
+
+/* Dialog/Modal for saving sessions */
+.session-dialog-title {
+  display: flex;
+  align-items: center;
+}
+
+.session-dialog-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  margin-right: 0.5rem;
+  color: var(--primary-color);
+}
+
+.session-form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}

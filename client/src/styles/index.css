@@ -1,25 +1,20 @@
 /*
- * Main index.css
- * Entry point for all application styles
- * 
- * This file imports all component-specific stylesheets
- * to maintain a modular and organized CSS structure.
+ * index.css
+ * Main entry point for all CSS styles
  */
-
-/* Import component-specific styles */
-@import './styles/animations.css';
-@import './styles/Layout.css';
-@import './styles/SubjectCard.css';
-@import './styles/SubjectDetail.css';
-@import './styles/StudyTimer.css';
-@import './styles/FloatingActionButton.css';
 
 /* Import Tailwind CSS base styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles that apply globally */
+/* Import custom styles */
+@import './animations.css';
+@import './SubjectCard.css';
+@import './StudyTimer.css';
+@import './FloatingActionButton.css';
+
+/* Base styles */
 @layer base {
   * {
     @apply border-border;
