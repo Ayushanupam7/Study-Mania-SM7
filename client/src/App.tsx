@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Layout from "@/components/layout/Layout";
 import Dashboard from "@/pages/Dashboard";
 import Subjects from "@/pages/Subjects";
+import SubjectDetail from "@/pages/SubjectDetail";
 import Flashbook from "@/pages/Flashbook";
 import Planner from "@/pages/Planner";
 import History from "@/pages/History";
@@ -20,6 +21,7 @@ function Router() {
         <Route path="/" component={Dashboard} />
         <Route path="/study-time" component={StudyTime} />
         <Route path="/subjects" component={Subjects} />
+        <Route path="/subjects/:id" component={SubjectDetail} />
         <Route path="/flashbook" component={Flashbook} />
         <Route path="/planner" component={Planner} />
         <Route path="/history" component={History} />

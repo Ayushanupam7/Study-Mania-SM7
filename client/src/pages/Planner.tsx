@@ -1,8 +1,16 @@
 import { useState } from 'react';
 import { useStudyContext } from '@/context/StudyContext';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar as CalendarIcon } from 'lucide-react';
-import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
+import { 
+  Plus, 
+  Calendar as CalendarIcon, 
+  Clock, 
+  BookOpen, 
+  Check, 
+  Timer, 
+  AlertCircle
+} from 'lucide-react';
+import { format, startOfWeek, addDays, isSameDay, isToday } from 'date-fns';
 import { 
   Dialog,
   DialogContent,
@@ -22,8 +30,16 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import PlannerItem from '@/components/ui/PlannerItem';
 
 const Planner = () => {
-  const { plannerItems, subjects, createPlannerItem } = useStudyContext();
+  const { 
+    plannerItems, 
+    subjects, 
+    createPlannerItem, 
+    recordStudySession,
+    studySessions
+  } = useStudyContext();
+  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSessionDialogOpen, setIsSessionDialogOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'week' | 'list'>('week');
@@ -33,6 +49,12 @@ const Planner = () => {
     date: new Date(),
     isCompleted: false,
     subjectId: null as number | null
+  });
+  
+  const [sessionData, setSessionData] = useState({
+    subjectId: subjects.length > 0 ? subjects[0].id : 1,
+    duration: 30,
+    comments: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -135,6 +157,102 @@ const Planner = () => {
               Task List
             </button>
           </div>
+          
+          {/* Record Study Session Dialog */}
+          <Dialog open={isSessionDialogOpen} onOpenChange={setIsSessionDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="px-4 py-1.5 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 flex items-center">
+                <Clock className="h-5 w-5 mr-1" />
+                Record Session
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                recordStudySession(
+                  sessionData.subjectId, 
+                  sessionData.duration, 
+                  sessionData.comments || undefined
+                );
+                setSessionData({
+                  subjectId: subjects.length > 0 ? subjects[0].id : 1,
+                  duration: 30,
+                  comments: ''
+                });
+                setIsSessionDialogOpen(false);
+              }}>
+                <DialogHeader>
+                  <DialogTitle>Record Study Session</DialogTitle>
+                  <DialogDescription>
+                    Log your completed study time to track your progress.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="session-subject" className="text-right">
+                      Subject
+                    </Label>
+                    <Select 
+                      value={sessionData.subjectId.toString()}
+                      onValueChange={(value) => 
+                        setSessionData({ ...sessionData, subjectId: parseInt(value) })
+                      }
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Select a subject" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subjects.map((subject) => (
+                          <SelectItem key={subject.id} value={subject.id.toString()}>
+                            {subject.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="session-duration" className="text-right">
+                      Duration (min)
+                    </Label>
+                    <Input
+                      id="session-duration"
+                      type="number"
+                      min="1"
+                      max="720"
+                      value={sessionData.duration}
+                      onChange={(e) => setSessionData({ 
+                        ...sessionData, 
+                        duration: parseInt(e.target.value) || 30
+                      })}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="session-comments" className="text-right">
+                      Comments
+                    </Label>
+                    <Textarea
+                      id="session-comments"
+                      value={sessionData.comments}
+                      onChange={(e) => setSessionData({ ...sessionData, comments: e.target.value })}
+                      placeholder="What did you study? How productive was your session?"
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                    Save Session
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+          
+          {/* Add Task Dialog */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="px-4 py-1.5 bg-slate-900 text-white rounded-md font-medium hover:bg-slate-800 flex items-center">
@@ -233,8 +351,77 @@ const Planner = () => {
         </div>
       </div>
       
+      {/* Recent Study Sessions Section */}
+      <div className="mb-6 mt-4">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl font-semibold">Recent Study Sessions</h2>
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-1 text-green-600 border-green-200 hover:bg-green-50"
+            onClick={() => setIsSessionDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Record New Session
+          </Button>
+        </div>
+        
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          {studySessions.length > 0 ? (
+            <div className="divide-y divide-slate-100">
+              {studySessions
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .slice(0, 5) // Show the latest 5 sessions
+                .map(session => {
+                  const subject = subjects.find(s => s.id === session.subjectId);
+                  return (
+                    <div key={session.id} className="p-4 flex items-center gap-4">
+                      <div className="min-w-[40px] h-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                        <Clock className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {subject?.name || 'Unknown Subject'}
+                        </div>
+                        <div className="text-sm text-slate-500">
+                          {format(new Date(session.date), 'MMMM d, yyyy • h:mm a')} • {session.duration} minutes
+                        </div>
+                        {session.comments && (
+                          <p className="mt-1 text-sm text-slate-600">{session.comments}</p>
+                        )}
+                      </div>
+                      {isToday(new Date(session.date)) && (
+                        <div className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                          Today
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="bg-slate-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                <Clock className="h-6 w-6 text-slate-400" />
+              </div>
+              <h3 className="text-lg font-medium text-slate-600 mb-1">No study sessions yet</h3>
+              <p className="text-sm text-slate-500 mb-4">
+                Record your first study session to start tracking your progress
+              </p>
+              <Button 
+                variant="outline"
+                className="border-green-200 text-green-600 hover:bg-green-50" 
+                onClick={() => setIsSessionDialogOpen(true)}
+              >
+                <Clock className="h-4 w-4 mr-2" />
+                Record Session
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+      
       {/* Week Selection */}
-      <div className="relative max-w-xs mb-6 mt-4">
+      <div className="relative max-w-xs mb-6">
         <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
           <PopoverTrigger asChild>
             <Button 
