@@ -31,7 +31,8 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     name,
-    description
+    description,
+    colorClass
   });
 
   const handleEditSubmit = (e: React.FormEvent) => {
@@ -39,6 +40,15 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
     updateSubject(id, editFormData);
     setIsEditDialogOpen(false);
   };
+
+  const colorOptions = [
+    { value: 'border-blue-500', label: 'Blue' },
+    { value: 'border-yellow-500', label: 'Yellow' },
+    { value: 'border-green-500', label: 'Green' },
+    { value: 'border-red-500', label: 'Red' },
+    { value: 'border-purple-500', label: 'Purple' },
+    { value: 'border-orange-500', label: 'Orange' }
+  ];
 
   const handleDeleteConfirm = () => {
     deleteSubject(id);
@@ -157,6 +167,29 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
                   onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
                   className="col-span-3"
                 />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <label className="text-right text-sm pt-2">
+                  Color
+                </label>
+                <RadioGroup
+                  value={editFormData.colorClass}
+                  onValueChange={(value) => setEditFormData({ ...editFormData, colorClass: value })}
+                  className="col-span-3 flex flex-wrap gap-4"
+                >
+                  {colorOptions.map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <RadioGroupItem 
+                        value={option.value} 
+                        id={option.value}
+                        className={option.value.replace('border', 'text')} 
+                      />
+                      <label htmlFor={option.value} className="cursor-pointer text-sm">
+                        {option.label}
+                      </label>
+                    </div>
+                  ))}
+                </RadioGroup>
               </div>
             </div>
             <DialogFooter>
