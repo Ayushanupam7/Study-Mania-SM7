@@ -266,6 +266,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Countdown routes
+  app.get('/api/countdowns', async (req, res) => {
+    try {
+      const countdowns = await storage.getCountdowns();
+      res.json(countdowns);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching countdowns' });
+    }
+  });
+
+  app.post('/api/countdowns', async (req, res) => {
+    try {
+      const countdownData = req.body;
+      const parseResult = insertCountdownSchema.safeParse({ ...countdownData, userId: 1 });
+      
+      if (!parseResult.success) {
+        return res.status(400).json({ message: 'Invalid countdown data', errors: parseResult.error.errors });
+      }
+      
+      const newCountdown = await storage.createCountdown(parseResult.data);
+      res.status(201).json(newCountdown);
+    } catch (error) {
+      res.status(500).json({ message: 'Error creating countdown' });
+    }
+  });
+
+  app.patch('/api/countdowns/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const countdownData = req.body;
+      
+      const updatedCountdown = await storage.updateCountdown(id, countdownData);
+      if (!updatedCountdown) {
+        return res.status(404).json({ message: 'Countdown not found' });
+      }
+      
+      res.json(updatedCountdown);
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating countdown' });
+    }
+  });
+
+  app.delete('/api/countdowns/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteCountdown(id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: 'Error deleting countdown' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
