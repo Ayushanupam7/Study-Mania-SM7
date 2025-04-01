@@ -326,25 +326,44 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   // Planner functions
   const createPlannerItem = async (plannerItemData: Omit<PlannerItem, 'id'>) => {
     try {
+      // Make sure date is a valid Date object
+      const dateToUse = plannerItemData.date instanceof Date && !isNaN(plannerItemData.date.getTime()) 
+        ? plannerItemData.date 
+        : new Date();
+      
       const serializedData = {
         ...plannerItemData,
-        date: plannerItemData.date.toISOString(),
+        date: dateToUse.toISOString(),
       };
+      
+      console.log("Creating planner item with data:", serializedData);
       const response = await apiRequest('POST', '/api/planner', serializedData);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Server error:", errorData);
+        throw new Error(errorData.message || 'Error creating planner item');
+      }
+      
       const newItem = await response.json();
+      console.log("Successfully created planner item:", newItem);
+      
       setPlannerItems(prev => [...prev, {
         ...newItem,
         date: new Date(newItem.date)
       }]);
+      
       toast({
         title: "Task created",
         description: `Task "${plannerItemData.title}" has been created successfully.`
       });
     } catch (error) {
       console.error('Error creating planner item:', error);
-      // Add to local state anyway for better UX
-      const newId = Math.max(0, ...plannerItems.map(p => p.id)) + 1;
-      setPlannerItems(prev => [...prev, { ...plannerItemData, id: newId }]);
+      toast({
+        title: "Error",
+        description: "Failed to create task. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 

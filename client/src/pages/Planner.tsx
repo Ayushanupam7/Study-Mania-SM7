@@ -205,16 +205,16 @@ const Planner = () => {
                       Subject
                     </Label>
                     <Select 
-                      value={formData.subjectId?.toString() || ''}
+                      value={formData.subjectId?.toString() || 'null'}
                       onValueChange={(value) => 
-                        setFormData({ ...formData, subjectId: value ? parseInt(value) : null })
+                        setFormData({ ...formData, subjectId: value === 'null' ? null : parseInt(value) })
                       }
                     >
                       <SelectTrigger className="col-span-3">
                         <SelectValue placeholder="Select a subject (optional)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No Subject</SelectItem>
+                        <SelectItem value="null">No Subject</SelectItem>
                         {subjects.map((subject) => (
                           <SelectItem key={subject.id} value={subject.id.toString()}>
                             {subject.name}
