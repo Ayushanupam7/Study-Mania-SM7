@@ -10,11 +10,15 @@ import { formatStudyTime } from '@/lib/utils';
 
 const Dashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { subjects, flashcards, plannerItems, getTotalStudyTime } = useStudyContext();
+  const { subjects, flashcards, plannerItems, getTotalStudyTime, getTotalStudyTimeForToday } = useStudyContext();
   
   // Get total study time
   const totalStudyTime = getTotalStudyTime();
   const formattedTotalStudyTime = formatStudyTime(totalStudyTime);
+  
+  // Get today's study time
+  const todayStudyTime = getTotalStudyTimeForToday();
+  const formattedTodayStudyTime = formatStudyTime(todayStudyTime);
   
   // Update clock every second
   useEffect(() => {
@@ -39,8 +43,14 @@ const Dashboard = () => {
           <h1 className="text-2xl font-semibold">Dashboard</h1>
           <p className="text-slate-600">{format(currentTime, 'EEEE, MMMM d, yyyy • hh:mm:ss a')}</p>
         </div>
-        <div className="text-xl font-medium">
-          Total Study Time: {formattedTotalStudyTime}
+        <div className="flex flex-col items-end">
+          <div className="text-xl font-medium mb-1">
+            Total Study Time: {formattedTotalStudyTime}
+          </div>
+          <div className="text-sm font-medium text-blue-600 flex items-center">
+            <Clock className="h-4 w-4 mr-1" />
+            Today: {formattedTodayStudyTime}
+          </div>
         </div>
       </div>
       

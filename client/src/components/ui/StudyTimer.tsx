@@ -208,8 +208,8 @@ const StudyTimer = ({ subjectId }: StudyTimerProps) => {
         </TabsContent>
         
         <TabsContent value="pomodoro" className="mt-0">
-          <div className="flex flex-col gap-2 mb-8">
-            <div className="mb-2">
+          <div className="flex flex-col gap-2 mb-6">
+            <div className="mb-4">
               <Label htmlFor="pomodoro-input" className="font-medium mb-1 block">
                 Set Pomodoro Duration (minutes)
               </Label>
@@ -227,28 +227,46 @@ const StudyTimer = ({ subjectId }: StudyTimerProps) => {
               </div>
             </div>
             
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant="outline"
-                className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-                onClick={() => handlePomodoroPresetClick(25)}
-              >
-                25 min
-              </Button>
-              <Button
-                variant="outline"
-                className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-                onClick={() => handlePomodoroPresetClick(45)}
-              >
-                45 min
-              </Button>
-              <Button
-                variant="outline"
-                className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-                onClick={() => handlePomodoroPresetClick(60)}
-              >
-                1 hour
-              </Button>
+            {/* Pomodoro presets */}
+            <div className="mb-2">
+              <Label className="font-medium mb-1 block text-sm">
+                Pomodoro Presets
+              </Label>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant="outline"
+                  className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  onClick={() => handlePomodoroPresetClick(25)}
+                >
+                  25 min
+                </Button>
+                <Button
+                  variant="outline"
+                  className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  onClick={() => handlePomodoroPresetClick(45)}
+                >
+                  45 min
+                </Button>
+                <Button
+                  variant="outline"
+                  className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  onClick={() => handlePomodoroPresetClick(60)}
+                >
+                  1 hour
+                </Button>
+              </div>
+            </div>
+            
+            {/* Pomodoro technique info */}
+            <div className="bg-blue-50 rounded-md p-3 text-sm text-slate-700 mb-2">
+              <h4 className="font-medium mb-1 flex items-center">
+                <Clock className="h-4 w-4 mr-1 text-blue-500" />
+                Pomodoro Technique
+              </h4>
+              <p className="text-xs">
+                The Pomodoro Technique uses timed intervals (typically 25 minutes) 
+                of focused work followed by a short break. After 4 pomodoros, take a longer break.
+              </p>
             </div>
           </div>
           
@@ -260,6 +278,7 @@ const StudyTimer = ({ subjectId }: StudyTimerProps) => {
             initialTimeInMinutes={pomodoroTime} 
             subjectId={subjectId} 
             onComplete={handleTimerComplete}
+            isPomodoro={true}
           />
         </TabsContent>
       </Tabs>

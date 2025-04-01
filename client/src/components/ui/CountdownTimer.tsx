@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw, Clock, History, Star } from 'lucide-react';
+import { Play, Pause, RotateCcw, Clock, History, Star, Check, Save, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { useStudyContext } from '@/context/StudyContext';
 
 // Helper function to get saved durations from localStorage
@@ -34,18 +44,28 @@ type CountdownTimerProps = {
   initialTimeInMinutes?: number;
   subjectId?: number | null;
   onComplete?: () => void;
+  isPomodoro?: boolean;
 };
 
 const CountdownTimer = ({
   initialTimeInMinutes = 25,
   subjectId = null,
-  onComplete
+  onComplete,
+  isPomodoro = false
 }: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(initialTimeInMinutes * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [savedDurations, setSavedDurations] = useState<number[]>([]);
   // Track if timer has been started at least once in this session
   const [hasStarted, setHasStarted] = useState(false);
+  // Track if timer is completed
+  const [isCompleted, setIsCompleted] = useState(false);
+  // Session comments
+  const [sessionComments, setSessionComments] = useState('');
+  // Count pomodoro sessions
+  const [pomodoroCount, setPomodoroCount] = useState(0);
+  // Track if showing save dialog
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
   
   const { recordStudySession } = useStudyContext();
   
@@ -68,23 +88,30 @@ const CountdownTimer = ({
     } else if (timeLeft === 0 && isRunning) {
       console.log("TIMER COMPLETED! Time left:", timeLeft, "isRunning:", isRunning);
       setIsRunning(false);
+      setIsCompleted(true);
       
       if (onComplete) {
         console.log("Calling onComplete callback");
         onComplete();
       }
       
-      // Record the study session
-      if (subjectId) {
-        console.log("Recording study session for subject:", subjectId, "duration:", initialTimeInMinutes * 60);
-        
-        // Add a short delay to ensure state updates are processed first
-        setTimeout(() => {
-          recordStudySession(subjectId, initialTimeInMinutes * 60);
-          console.log("Study session recorded after timer completion");
-        }, 100);
+      if (isPomodoro) {
+        // Increment pomodoro count and show completion message
+        setPomodoroCount(prev => prev + 1);
+        setShowSaveDialog(true);
       } else {
-        console.log("No subject selected, study session not recorded");
+        // For non-pomodoro timers, auto-record the session
+        if (subjectId) {
+          console.log("Recording study session for subject:", subjectId, "duration:", initialTimeInMinutes * 60);
+          
+          // Add a short delay to ensure state updates are processed first
+          setTimeout(() => {
+            recordStudySession(subjectId, initialTimeInMinutes * 60);
+            console.log("Study session recorded after timer completion");
+          }, 100);
+        } else {
+          console.log("No subject selected, study session not recorded");
+        }
       }
     }
 
@@ -93,7 +120,7 @@ const CountdownTimer = ({
         clearInterval(interval);
       }
     };
-  }, [isRunning, timeLeft, onComplete, recordStudySession, subjectId, initialTimeInMinutes]);
+  }, [isRunning, timeLeft, onComplete, recordStudySession, subjectId, initialTimeInMinutes, isPomodoro]);
 
   // Track when timer changes to update UI accordingly
   useEffect(() => {
@@ -124,10 +151,39 @@ const CountdownTimer = ({
 
   const padZero = (num: number) => num.toString().padStart(2, '0');
 
+  // Handle saving the session with comments
+  const handleSaveSession = () => {
+    if (subjectId) {
+      // Record the study session with comments
+      recordStudySession(subjectId, initialTimeInMinutes * 60, sessionComments);
+      console.log("Saved study session with comments:", sessionComments);
+      
+      // Reset the pomodoro state
+      setShowSaveDialog(false);
+      setSessionComments('');
+      
+      // Reset the timer for the next session
+      resetTimer();
+    }
+  };
+  
+  // Handle skipping session save
+  const handleSkipSave = () => {
+    if (subjectId) {
+      // Record the session without comments
+      recordStudySession(subjectId, initialTimeInMinutes * 60);
+    }
+    
+    // Reset the pomodoro state
+    setShowSaveDialog(false);
+    setSessionComments('');
+    resetTimer();
+  };
+
   return (
     <div className="bg-slate-50 rounded-xl p-8 text-center mb-8">
       {/* Show saved durations after starting at least once */}
-      {hasStarted && !isRunning && savedDurations.length > 0 && (
+      {hasStarted && !isRunning && !isCompleted && savedDurations.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center mb-2">
             <History className="h-4 w-4 mr-2 text-slate-500" />
@@ -144,6 +200,18 @@ const CountdownTimer = ({
                 {duration} min
               </Badge>
             ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Pomodoro count display if applicable */}
+      {isPomodoro && pomodoroCount > 0 && !isRunning && (
+        <div className="mb-4">
+          <div className="flex items-center justify-center mb-2">
+            <Check className="h-4 w-4 mr-2 text-green-500" />
+            <span className="text-sm font-medium text-green-600">
+              {pomodoroCount} {pomodoroCount === 1 ? 'Pomodoro' : 'Pomodoros'} Completed
+            </span>
           </div>
         </div>
       )}
@@ -169,6 +237,7 @@ const CountdownTimer = ({
         <Button 
           className="px-6 py-2 bg-primary text-white rounded-md font-medium hover:bg-blue-600 flex items-center"
           onClick={toggleTimer}
+          disabled={isCompleted}
           data-timer-start-button="true"
         >
           {isRunning ? (
@@ -187,11 +256,59 @@ const CountdownTimer = ({
           variant="outline"
           className="px-6 py-2 bg-slate-200 text-slate-700 rounded-md font-medium hover:bg-slate-300 flex items-center"
           onClick={resetTimer}
+          disabled={isRunning}
         >
           <RotateCcw className="h-5 w-5 mr-2" />
           Reset
         </Button>
       </div>
+      
+      {/* Save Session Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <Save className="h-5 w-5 mr-2 text-primary" />
+              Save Study Session
+            </DialogTitle>
+            <DialogDescription>
+              Great job completing your {initialTimeInMinutes} minute 
+              {isPomodoro ? ' pomodoro' : ''} session! Add some notes about what you accomplished.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Label htmlFor="comments" className="text-sm font-medium">
+              Session Notes <span className="text-slate-400">(optional)</span>
+            </Label>
+            <Textarea
+              id="comments"
+              placeholder="What did you study? What progress did you make?"
+              value={sessionComments}
+              onChange={(e) => setSessionComments(e.target.value)}
+              className="mt-2 resize-none"
+              rows={4}
+            />
+          </div>
+          
+          <DialogFooter className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleSkipSave}
+              className="px-4 py-2"
+            >
+              Skip
+            </Button>
+            <Button 
+              onClick={handleSaveSession}
+              className="px-4 py-2 flex items-center"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save Session
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
