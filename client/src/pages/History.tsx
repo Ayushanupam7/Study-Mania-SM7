@@ -102,9 +102,45 @@ const History = () => {
   };
 
   const exportToPDF = () => {
-    // Placeholder for PDF export functionality.  Replace with actual PDF generation logic.
     const doc = new jsPDF();
-    doc.text("Study History Report", 10, 10);
+    
+    // Add title
+    doc.setFontSize(16);
+    doc.text("Study History Report", 20, 20);
+    
+    // Add date range
+    doc.setFontSize(12);
+    if (dateRange?.from && dateRange?.to) {
+      doc.text(`Period: ${format(dateRange.from, 'MMM d, yyyy')} - ${format(dateRange.to, 'MMM d, yyyy')}`, 20, 30);
+    }
+    
+    // Add total study time
+    const totalTime = filteredSessions.reduce((sum, session) => sum + session.duration, 0);
+    doc.text(`Total Study Time: ${formatStudyTime(totalTime)}`, 20, 40);
+    
+    // Create table headers
+    doc.autoTable({
+      startY: 50,
+      head: [['Date', 'Subject', 'Duration', 'Comments']],
+      body: filteredSessions.map(session => {
+        const subject = subjects.find(s => s.id === session.subjectId);
+        return [
+          format(new Date(session.date), 'MMM d, yyyy h:mm a'),
+          subject?.name || 'Unknown Subject',
+          formatStudyTime(session.duration),
+          session.comments || '-'
+        ];
+      }),
+      styles: { fontSize: 10, cellPadding: 5 },
+      headStyles: { fillColor: [51, 51, 51] },
+      columnStyles: {
+        0: { cellWidth: 50 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 30 },
+        3: { cellWidth: 'auto' }
+      }
+    });
+
     doc.save("study_history.pdf");
   };
 
