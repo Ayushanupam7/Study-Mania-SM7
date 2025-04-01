@@ -9,6 +9,7 @@ import { formatStudyTime } from '@/lib/utils';
 type User = {
   id: number;
   name: string;
+  photoUrl?: string;
 };
 
 type Subject = {

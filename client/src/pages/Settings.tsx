@@ -22,6 +22,7 @@ const Settings = () => {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const [profileFormData, setProfileFormData] = useState({
     name: user?.name || 'Ayush',
+    photoUrl: user?.photoUrl || null, // Added photoUrl to state
   });
   const { toast } = useToast();
 
@@ -35,6 +36,18 @@ const Settings = () => {
       description: "Your profile has been successfully updated.",
     });
   };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setProfileFormData({ ...profileFormData, photoUrl: event.target?.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   const colorOptions = [
     { value: 'blue', label: 'Blue', class: 'bg-blue-500' },
@@ -195,7 +208,7 @@ const Settings = () => {
                 Make changes to your profile here. Click save when you're done.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="space-y-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
                   Name
@@ -206,6 +219,29 @@ const Settings = () => {
                   onChange={(e) => setProfileFormData({ ...profileFormData, name: e.target.value })}
                   className="col-span-3"
                 />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="photo" className="text-right">
+                  Photo
+                </Label>
+                <div className="col-span-3">
+                  <div className="flex items-center gap-4">
+                    <Avatar className="w-16 h-16">
+                      {profileFormData.photoUrl ? (
+                        <img src={profileFormData.photoUrl} alt={profileFormData.name} className="w-full h-full object-cover rounded-full"/> {/* Added img tag */}
+                      ) : (
+                        <span>{profileFormData.name.charAt(0)}</span>
+                      )}
+                    </Avatar>
+                    <Input
+                      id="photo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <DialogFooter>
