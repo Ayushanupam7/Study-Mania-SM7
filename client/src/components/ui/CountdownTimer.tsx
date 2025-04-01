@@ -37,7 +37,10 @@ const CountdownTimer = ({
       
       // Record the study session
       if (subjectId) {
+        console.log("Recording study session for subject:", subjectId, "duration:", initialTimeInMinutes * 60);
         recordStudySession(subjectId, initialTimeInMinutes * 60);
+      } else {
+        console.log("No subject selected, study session not recorded");
       }
     }
 
@@ -55,6 +58,7 @@ const CountdownTimer = ({
   const resetTimer = () => {
     setIsRunning(false);
     setTimeLeft(initialTimeInMinutes * 60);
+    console.log("Timer reset");
   };
 
   const padZero = (num: number) => num.toString().padStart(2, '0');

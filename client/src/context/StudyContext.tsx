@@ -389,6 +389,8 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
 
   // Study session functions
   const recordStudySession = async (subjectId: number, duration: number, comments?: string) => {
+    console.log("recordStudySession called with:", {subjectId, duration, comments});
+    
     const sessionData = {
       subjectId,
       duration,
@@ -396,19 +398,31 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
       comments: comments || null
     };
     
+    console.log("Session data:", sessionData);
+    
     try {
       const serializedData = {
         ...sessionData,
         date: sessionData.date.toISOString(),
       };
       
+      console.log("Serialized data to send:", serializedData);
+      console.log("Making API request to POST /api/study-sessions");
+      
       const response = await apiRequest('POST', '/api/study-sessions', serializedData);
       const newSession = await response.json();
       
-      setStudySessions(prev => [...prev, {
-        ...newSession,
-        date: new Date(newSession.date)
-      }]);
+      console.log("Response from server:", newSession);
+      
+      setStudySessions(prev => {
+        console.log("Current study sessions:", prev);
+        const updated = [...prev, {
+          ...newSession,
+          date: new Date(newSession.date)
+        }];
+        console.log("Updated study sessions:", updated);
+        return updated;
+      });
       
       // Update subject's total study time
       setSubjects(prev => prev.map(subject => 
@@ -423,9 +437,16 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
       });
     } catch (error) {
       console.error('Error recording study session:', error);
+      
       // Add to local state anyway for better UX
       const newId = Math.max(0, ...studySessions.map(s => s.id)) + 1;
-      setStudySessions(prev => [...prev, { ...sessionData, id: newId }]);
+      console.log("Created local session with ID:", newId);
+      
+      setStudySessions(prev => {
+        const updated = [...prev, { ...sessionData, id: newId }];
+        console.log("Updated study sessions with local data:", updated);
+        return updated;
+      });
       
       // Update subject's total study time in local state
       setSubjects(prev => prev.map(subject => 
@@ -433,6 +454,11 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
           ? { ...subject, totalStudyTime: subject.totalStudyTime + duration }
           : subject
       ));
+      
+      toast({
+        title: "Study session recorded locally",
+        description: `You studied for ${formatStudyTime(duration)}. The server couldn't be reached, but the session was saved locally.`
+      });
     }
   };
 
