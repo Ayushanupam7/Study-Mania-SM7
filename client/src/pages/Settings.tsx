@@ -93,20 +93,21 @@ const Settings = () => {
         
         <TabsContent value="appearance" className="mt-0">
           {/* App Color Settings */}
-          <div className="mb-8">
+          <div className="mb-8 bg-card p-6 rounded-lg border">
             <h2 className="flex items-center text-lg font-medium mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
               </svg>
-              App Color
+              Theme Color
             </h2>
-            <div className="flex space-x-4">
+            <p className="text-sm text-muted-foreground mb-4">Choose your preferred accent color for the application</p>
+            <div className="grid grid-cols-5 gap-4">
               {colorOptions.map((color) => (
                 <button 
                   key={color.value}
-                  className={`w-10 h-10 rounded-md ${color.class} flex items-center justify-center border-2 ${
+                  className={`w-14 h-14 rounded-lg ${color.class} flex items-center justify-center border-2 transition-all hover:scale-105 ${
                     appColor === color.value 
-                      ? 'border-blue-500' 
+                      ? 'border-primary shadow-lg' 
                       : 'border-transparent hover:border-slate-400'
                   }`}
                   onClick={() => setAppColor(color.value)}
@@ -122,37 +123,48 @@ const Settings = () => {
           </div>
           
           {/* Display Mode Settings */}
-          <div>
+          <div className="bg-card p-6 rounded-lg border">
             <h2 className="flex items-center text-lg font-medium mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
-              Mode
+              Appearance Mode
             </h2>
-            <RadioGroup 
-              value={isDarkMode ? 'dark' : 'light'} 
-              onValueChange={(value) => setIsDarkMode(value === 'dark')}
-              className="flex flex-col space-y-3"
-            >
-              <div className="flex items-center">
-                <RadioGroupItem value="light" id="light-mode" />
-                <Label htmlFor="light-mode" className="ml-3 cursor-pointer">
-                  Light
-                </Label>
-              </div>
-              <div className="flex items-center">
-                <RadioGroupItem value="dark" id="dark-mode" />
-                <Label htmlFor="dark-mode" className="ml-3 cursor-pointer">
-                  Dark
-                </Label>
-              </div>
-              <div className="flex items-center">
-                <RadioGroupItem value="system" id="system-mode" />
-                <Label htmlFor="system-mode" className="ml-3 cursor-pointer">
-                  Use system settings
-                </Label>
-              </div>
-            </RadioGroup>
+            <p className="text-sm text-muted-foreground mb-4">Select your preferred appearance mode</p>
+            <div className="grid grid-cols-3 gap-4">
+              <button
+                className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all hover:bg-accent ${!isDarkMode ? 'border-primary bg-accent' : 'border-transparent'}`}
+                onClick={() => setIsDarkMode(false)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span className="text-sm font-medium">Light</span>
+              </button>
+              
+              <button
+                className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all hover:bg-accent ${isDarkMode ? 'border-primary bg-accent' : 'border-transparent'}`}
+                onClick={() => setIsDarkMode(true)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                <span className="text-sm font-medium">Dark</span>
+              </button>
+              
+              <button
+                className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all hover:bg-accent ${false ? 'border-primary bg-accent' : 'border-transparent'}`}
+                onClick={() => {
+                  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  setIsDarkMode(prefersDark);
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm font-medium">System</span>
+              </button>
+            </div>
           </div>
         </TabsContent>
         
