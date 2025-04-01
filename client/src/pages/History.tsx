@@ -52,7 +52,7 @@ const History = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<EditingSession | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined }); // Added dateRange state
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined } | undefined>();
 
   // Get total study time across all sessions
   const totalStudyTime = getTotalStudyTime();
@@ -62,10 +62,10 @@ const History = () => {
   const commentsInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Filter sessions by selected date range if any
-  const filteredSessions = dateRange.from && dateRange.to
+  const filteredSessions = dateRange?.from && dateRange?.to
     ? studySessions.filter(session => {
         const sessionDate = new Date(session.date);
-        return sessionDate >= dateRange.from && sessionDate <= dateRange.to;
+        return sessionDate >= dateRange.from! && sessionDate <= dateRange.to!;
       })
     : studySessions;
 
