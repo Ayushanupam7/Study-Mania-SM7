@@ -72,6 +72,8 @@ type StudyContextType = {
   // Study Sessions
   studySessions: StudySession[];
   recordStudySession: (subjectId: number, duration: number, comments?: string) => void;
+  updateStudySession: (id: number, sessionData: Partial<Omit<StudySession, 'id'>>) => void;
+  deleteStudySession: (id: number) => void;
   getTotalStudyTime: () => number;
   getTotalStudyTimeForToday: () => number;
   
@@ -434,6 +436,114 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateStudySession = async (id: number, sessionData: Partial<Omit<StudySession, 'id'>>) => {
+    try {
+      // Get the current session to check duration changes
+      const currentSession = studySessions.find(session => session.id === id);
+      if (!currentSession) {
+        toast({
+          title: "Error",
+          description: "Study session not found",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Prepare data for API call
+      const serializedData: any = { ...sessionData };
+      
+      // Convert date to ISO string if provided
+      if (serializedData.date) {
+        serializedData.date = serializedData.date.toISOString();
+      }
+      
+      const response = await apiRequest('PATCH', `/api/study-sessions/${id}`, serializedData);
+      const updatedSession = await response.json();
+      
+      // Update sessions in state
+      setStudySessions(prev => prev.map(session => 
+        session.id === id ? { 
+          ...session, 
+          ...updatedSession,
+          date: new Date(updatedSession.date) 
+        } : session
+      ));
+      
+      // If duration was changed, update the subject's total study time
+      if (sessionData.duration && sessionData.duration !== currentSession.duration) {
+        const durationDifference = sessionData.duration - currentSession.duration;
+        setSubjects(prev => prev.map(subject => 
+          subject.id === currentSession.subjectId
+            ? { 
+                ...subject, 
+                totalStudyTime: subject.totalStudyTime + durationDifference 
+              }
+            : subject
+        ));
+      }
+      
+      toast({
+        title: "Study session updated",
+        description: "Your study session has been updated successfully."
+      });
+    } catch (error) {
+      console.error('Error updating study session:', error);
+      // Update local state anyway for better UX
+      setStudySessions(prev => prev.map(session => 
+        session.id === id ? { ...session, ...sessionData } : session
+      ));
+      
+      toast({
+        title: "Study session updated",
+        description: "Your study session has been updated in local state."
+      });
+    }
+  };
+
+  const deleteStudySession = async (id: number) => {
+    try {
+      // Get the session before deletion to update subject's study time
+      const sessionToDelete = studySessions.find(session => session.id === id);
+      if (!sessionToDelete) {
+        toast({
+          title: "Error",
+          description: "Study session not found",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      await apiRequest('DELETE', `/api/study-sessions/${id}`, undefined);
+      
+      // Remove the session from state
+      setStudySessions(prev => prev.filter(session => session.id !== id));
+      
+      // Update subject's total study time
+      setSubjects(prev => prev.map(subject => 
+        subject.id === sessionToDelete.subjectId
+          ? { 
+              ...subject, 
+              totalStudyTime: Math.max(0, subject.totalStudyTime - sessionToDelete.duration) 
+            }
+          : subject
+      ));
+      
+      toast({
+        title: "Study session deleted",
+        description: "The study session has been deleted successfully."
+      });
+    } catch (error) {
+      console.error('Error deleting study session:', error);
+      // Delete from local state anyway for better UX
+      setStudySessions(prev => prev.filter(session => session.id !== id));
+      
+      toast({
+        title: "Study session deleted",
+        description: "The study session has been deleted from local state."
+      });
+    }
+  };
+
   // Utility functions
   const getTotalStudyTime = () => {
     return studySessions.reduce((total, session) => total + session.duration, 0);
@@ -507,6 +617,8 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     // Study Sessions
     studySessions,
     recordStudySession,
+    updateStudySession,
+    deleteStudySession,
     getTotalStudyTime,
     getTotalStudyTimeForToday,
     

@@ -225,6 +225,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add route to update a study session
+  app.patch('/api/study-sessions/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const sessionData = req.body;
+      
+      // Get the original session to check for duration changes
+      const originalSession = await storage.getStudySession(id);
+      if (!originalSession) {
+        return res.status(404).json({ message: 'Study session not found' });
+      }
+      
+      // If duration is being updated, adjust the subject's total study time
+      if (sessionData.duration && sessionData.duration !== originalSession.duration) {
+        const durationDifference = sessionData.duration - originalSession.duration;
+        await storage.incrementSubjectStudyTime(originalSession.subjectId, durationDifference);
+      }
+      
+      // Convert date string to Date object if provided
+      if (sessionData.date) {
+        sessionData.date = new Date(sessionData.date);
+      }
+      
+      const updatedSession = await storage.updateStudySession(id, sessionData);
+      res.json(updatedSession);
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating study session' });
+    }
+  });
+
+  // Add route to delete a study session
+  app.delete('/api/study-sessions/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteStudySession(id);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: 'Error deleting study session' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

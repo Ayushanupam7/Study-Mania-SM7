@@ -49,6 +49,8 @@ export interface IStorage {
   getStudySessionsBySubject(subjectId: number): Promise<StudySession[]>;
   getStudySessionsByDate(date: Date): Promise<StudySession[]>;
   createStudySession(studySession: InsertStudySession): Promise<StudySession>;
+  updateStudySession(id: number, sessionData: Partial<StudySession>): Promise<StudySession | undefined>;
+  deleteStudySession(id: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -201,7 +203,13 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const user: User = { ...insertUser, id };
+    // Ensure required fields have default values if not provided
+    const user: User = { 
+      ...insertUser, 
+      id,
+      appColor: insertUser.appColor ?? null,
+      isDarkMode: insertUser.isDarkMode ?? null
+    };
     this.users.set(id, user);
     return user;
   }
@@ -234,7 +242,13 @@ export class MemStorage implements IStorage {
 
   async createSubject(insertSubject: InsertSubject): Promise<Subject> {
     const id = this.subjectIdCounter++;
-    const subject: Subject = { ...insertSubject, id, totalStudyTime: 0 };
+    const subject: Subject = { 
+      ...insertSubject, 
+      id, 
+      totalStudyTime: 0,
+      description: insertSubject.description ?? null,
+      colorClass: insertSubject.colorClass ?? null
+    };
     this.subjects.set(id, subject);
     return subject;
   }
@@ -281,9 +295,10 @@ export class MemStorage implements IStorage {
     const subject = this.subjects.get(id);
     if (!subject) return undefined;
     
+    const currentStudyTime = subject.totalStudyTime ?? 0;
     const updatedSubject = { 
       ...subject, 
-      totalStudyTime: subject.totalStudyTime + duration 
+      totalStudyTime: currentStudyTime + duration 
     };
     this.subjects.set(id, updatedSubject);
     return updatedSubject;
@@ -346,7 +361,13 @@ export class MemStorage implements IStorage {
 
   async createPlannerItem(insertPlannerItem: InsertPlannerItem): Promise<PlannerItem> {
     const id = this.plannerItemIdCounter++;
-    const plannerItem: PlannerItem = { ...insertPlannerItem, id };
+    const plannerItem: PlannerItem = { 
+      ...insertPlannerItem, 
+      id,
+      description: insertPlannerItem.description ?? null,
+      subjectId: insertPlannerItem.subjectId ?? null,
+      isCompleted: insertPlannerItem.isCompleted ?? null
+    };
     this.plannerItems.set(id, plannerItem);
     return plannerItem;
   }
@@ -392,9 +413,42 @@ export class MemStorage implements IStorage {
 
   async createStudySession(insertStudySession: InsertStudySession): Promise<StudySession> {
     const id = this.studySessionIdCounter++;
-    const studySession: StudySession = { ...insertStudySession, id };
+    const studySession: StudySession = { 
+      ...insertStudySession, 
+      id,
+      comments: insertStudySession.comments ?? null
+    };
     this.studySessions.set(id, studySession);
     return studySession;
+  }
+
+  async updateStudySession(id: number, sessionData: Partial<StudySession>): Promise<StudySession | undefined> {
+    const studySession = this.studySessions.get(id);
+    if (!studySession) return undefined;
+    
+    const updatedStudySession = { ...studySession, ...sessionData };
+    this.studySessions.set(id, updatedStudySession);
+    return updatedStudySession;
+  }
+
+  async deleteStudySession(id: number): Promise<void> {
+    const session = this.studySessions.get(id);
+    if (session) {
+      // Decrement the subject's total study time
+      const subject = this.subjects.get(session.subjectId);
+      if (subject) {
+        const currentStudyTime = subject.totalStudyTime ?? 0;
+        const updatedStudyTime = Math.max(0, currentStudyTime - session.duration);
+        const updatedSubject = { 
+          ...subject, 
+          totalStudyTime: updatedStudyTime
+        };
+        this.subjects.set(subject.id, updatedSubject);
+      }
+      
+      // Delete the session
+      this.studySessions.delete(id);
+    }
   }
 }
 
