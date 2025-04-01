@@ -39,7 +39,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { jsPDF } from "jspdf";
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 
 type EditingSession = {
@@ -120,7 +120,7 @@ const History = () => {
     doc.text(`Total Study Time: ${formatStudyTime(totalTime)}`, 20, 40);
     
     // Create table headers
-    doc.autoTable({
+    autoTable(doc, {
       startY: 50,
       head: [['Date', 'Subject', 'Duration', 'Comments']],
       body: filteredSessions.map(session => {
