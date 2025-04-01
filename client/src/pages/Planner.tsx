@@ -1,0 +1,351 @@
+import { useState } from 'react';
+import { useStudyContext } from '@/context/StudyContext';
+import { Button } from '@/components/ui/button';
+import { Plus, Calendar as CalendarIcon } from 'lucide-react';
+import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import PlannerItem from '@/components/ui/PlannerItem';
+
+const Planner = () => {
+  const { plannerItems, subjects, createPlannerItem } = useStudyContext();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'week' | 'list'>('week');
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    date: new Date(),
+    isCompleted: false,
+    subjectId: null as number | null
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createPlannerItem(formData);
+    setFormData({
+      title: '',
+      description: '',
+      date: new Date(),
+      isCompleted: false,
+      subjectId: null
+    });
+    setIsDialogOpen(false);
+  };
+
+  // Calculate the start of the week
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+  
+  // Group tasks by day of the week
+  const tasksByDay: Record<string, typeof plannerItems> = {};
+  
+  // Initialize days of the week
+  for (let i = 0; i < 7; i++) {
+    const day = addDays(weekStart, i);
+    const dayStr = format(day, 'yyyy-MM-dd');
+    tasksByDay[dayStr] = [];
+  }
+  
+  // Populate tasks for each day
+  plannerItems.forEach(item => {
+    const itemDate = new Date(item.date);
+    const dayStr = format(itemDate, 'yyyy-MM-dd');
+    
+    if (viewMode === 'week') {
+      // Only include tasks from current week
+      const itemWeekStart = startOfWeek(itemDate, { weekStartsOn: 0 });
+      const currentWeekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+      
+      if (format(itemWeekStart, 'yyyy-MM-dd') === format(currentWeekStart, 'yyyy-MM-dd')) {
+        if (!tasksByDay[dayStr]) {
+          tasksByDay[dayStr] = [];
+        }
+        tasksByDay[dayStr].push(item);
+      }
+    } else {
+      // In list view, show all tasks sorted by date
+      if (!tasksByDay[dayStr]) {
+        tasksByDay[dayStr] = [];
+      }
+      tasksByDay[dayStr].push(item);
+    }
+  });
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-2">
+        <div>
+          <h1 className="text-2xl font-semibold">Planner</h1>
+          <p className="text-slate-600">Organize your study tasks and deadlines</p>
+        </div>
+        <div className="flex space-x-2">
+          <div className="flex rounded-lg border border-slate-200 overflow-hidden">
+            <button 
+              className={`px-4 py-1.5 font-medium ${
+                viewMode === 'week' 
+                  ? 'bg-white text-slate-800'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+              onClick={() => setViewMode('week')}
+            >
+              Week View
+            </button>
+            <button 
+              className={`px-4 py-1.5 font-medium ${
+                viewMode === 'list' 
+                  ? 'bg-white text-slate-800'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+              onClick={() => setViewMode('list')}
+            >
+              Task List
+            </button>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="px-4 py-1.5 bg-slate-900 text-white rounded-md font-medium hover:bg-slate-800 flex items-center">
+                <Plus className="h-5 w-5 mr-1" />
+                Add Task
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <form onSubmit={handleSubmit}>
+                <DialogHeader>
+                  <DialogTitle>Add New Task</DialogTitle>
+                  <DialogDescription>
+                    Create a new task for your study plan.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="title" className="text-right">
+                      Title
+                    </Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="col-span-3"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="description" className="text-right">
+                      Description
+                    </Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="date" className="text-right">
+                      Date
+                    </Label>
+                    <div className="col-span-3">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            className="w-full justify-start text-left font-normal"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {format(formData.date, 'PPP')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={formData.date}
+                            onSelect={(date) => date && setFormData({ ...formData, date })}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="subject" className="text-right">
+                      Subject
+                    </Label>
+                    <Select 
+                      value={formData.subjectId?.toString() || ''}
+                      onValueChange={(value) => 
+                        setFormData({ ...formData, subjectId: value ? parseInt(value) : null })
+                      }
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Select a subject (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">No Subject</SelectItem>
+                        {subjects.map((subject) => (
+                          <SelectItem key={subject.id} value={subject.id.toString()}>
+                            {subject.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Add Task</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+      
+      {/* Week Selection */}
+      <div className="relative max-w-xs mb-6 mt-4">
+        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-left font-normal px-4 py-2 border border-slate-300 rounded-md bg-white"
+            >
+              <CalendarIcon className="mr-2 h-5 w-5 text-slate-600" />
+              {viewMode === 'week' 
+                ? `Week of ${format(weekStart, 'MMMM d, yyyy')}`
+                : 'All Tasks'
+              }
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={currentDate}
+              onSelect={(date) => {
+                if (date) {
+                  setCurrentDate(date);
+                  setIsCalendarOpen(false);
+                }
+              }}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      
+      {/* Weekly Tasks */}
+      <div className="space-y-6">
+        {viewMode === 'week' ? (
+          // Week view
+          Object.entries(tasksByDay)
+            .sort(([dayA], [dayB]) => new Date(dayA).getTime() - new Date(dayB).getTime())
+            .map(([dayStr, tasks]) => {
+              if (tasks.length === 0) return null;
+              
+              const dayDate = new Date(dayStr);
+              const dayName = format(dayDate, 'EEEE');
+              const formattedDate = format(dayDate, 'MMMM d, yyyy');
+              
+              return (
+                <Card key={dayStr} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <CardHeader className="p-4 flex justify-between items-center border-b border-slate-100">
+                    <div>
+                      <h3 className="font-medium text-lg">{dayName}</h3>
+                      <p className="text-sm text-slate-500">{formattedDate}</p>
+                    </div>
+                    <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                      {tasks.length} {tasks.length === 1 ? 'item' : 'items'}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0 divide-y divide-slate-100">
+                    {tasks.map((task) => (
+                      <PlannerItem
+                        key={task.id}
+                        id={task.id}
+                        title={task.title}
+                        description={task.description}
+                        date={task.date}
+                        isCompleted={task.isCompleted}
+                        subjectId={task.subjectId}
+                      />
+                    ))}
+                  </CardContent>
+                </Card>
+              );
+            })
+        ) : (
+          // List view - show all tasks grouped by date
+          Object.entries(tasksByDay)
+            .filter(([_, tasks]) => tasks.length > 0)
+            .sort(([dayA], [dayB]) => new Date(dayA).getTime() - new Date(dayB).getTime())
+            .map(([dayStr, tasks]) => {
+              const dayDate = new Date(dayStr);
+              const dayName = format(dayDate, 'EEEE');
+              const formattedDate = format(dayDate, 'MMMM d, yyyy');
+              
+              return (
+                <Card key={dayStr} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                  <CardHeader className="p-4 flex justify-between items-center border-b border-slate-100">
+                    <div>
+                      <h3 className="font-medium text-lg">{dayName}</h3>
+                      <p className="text-sm text-slate-500">{formattedDate}</p>
+                    </div>
+                    <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                      {tasks.length} {tasks.length === 1 ? 'item' : 'items'}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0 divide-y divide-slate-100">
+                    {tasks.map((task) => (
+                      <PlannerItem
+                        key={task.id}
+                        id={task.id}
+                        title={task.title}
+                        description={task.description}
+                        date={task.date}
+                        isCompleted={task.isCompleted}
+                        subjectId={task.subjectId}
+                      />
+                    ))}
+                  </CardContent>
+                </Card>
+              );
+            })
+        )}
+        
+        {/* Empty state */}
+        {Object.values(tasksByDay).every(tasks => tasks.length === 0) && (
+          <div className="text-center py-12 bg-white rounded-lg border border-dashed border-slate-300">
+            <h3 className="text-lg font-medium text-slate-600 mb-2">No tasks scheduled</h3>
+            <p className="text-slate-500 mb-4">
+              {viewMode === 'week' 
+                ? 'Add your first task to start planning your week.'
+                : 'No tasks found in your planner.'
+              }
+            </p>
+            <Button 
+              onClick={() => setIsDialogOpen(true)}
+              className="px-4 py-2 bg-primary text-white rounded-md font-medium"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Add Task
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Planner;
