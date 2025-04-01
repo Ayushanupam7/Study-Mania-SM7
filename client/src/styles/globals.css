@@ -88,9 +88,9 @@ body {
 .dark {
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
+  --card: 222.2 47.4% 11.2%;
   --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
+  --popover: 222.2 47.4% 11.2%;
   --popover-foreground: 210 40% 98%;
   --primary: 217.2 91.2% 59.8%;
   --primary-foreground: 222.2 47.4% 11.2%;
@@ -110,6 +110,24 @@ body {
 .dark body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+}
+
+.dark .bg-white {
+  background-color: hsl(var(--card));
+}
+
+.dark .text-slate-600,
+.dark .text-slate-700,
+.dark .text-slate-800 {
+  color: hsl(var(--foreground));
+}
+
+.dark .text-slate-500 {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark .border-slate-200 {
+  border-color: hsl(var(--border));
 }
 
 /* Buttons and interactive elements */
