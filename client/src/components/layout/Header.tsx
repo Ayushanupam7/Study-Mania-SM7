@@ -1,5 +1,5 @@
 import { Bell, Star } from "lucide-react";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useStudyContext } from "@/context/StudyContext";
 
 const Header = () => {
@@ -15,7 +15,13 @@ const Header = () => {
           <Star className="h-6 w-6" />
         </button>
         <Avatar className="h-8 w-8 bg-primary text-white">
-          <span className="text-sm font-medium">{user?.name?.charAt(0) || 'A'}</span>
+          {user?.photoUrl ? (
+            <AvatarImage src={user.photoUrl} alt={user.name} className="object-cover" />
+          ) : (
+            <AvatarFallback className="bg-primary text-white">
+              {user?.name?.charAt(0) || 'A'}
+            </AvatarFallback>
+          )}
         </Avatar>
         <span className="font-medium">{user?.name || 'Ayush'}</span>
       </div>
