@@ -46,11 +46,14 @@ const Stopwatch = ({ subjectId = null, onComplete }: StopwatchProps) => {
     
     // When resetting, if we've counted some time, record it as a session
     if (time > 0 && subjectId) {
+      console.log("Stopwatch reset - Recording study session for subject:", subjectId, "duration:", time);
       recordStudySession(subjectId, time);
       
       if (onComplete) {
         onComplete(time);
       }
+    } else {
+      console.log("Not recording study session on reset:", { subjectId, time });
     }
     
     setTime(0);

@@ -58,10 +58,14 @@ const StudyTime = () => {
           <Button 
             className="bg-primary text-white hover:bg-blue-700 flex items-center"
             onClick={() => {
+              console.log("Quick Start clicked for subject:", selectedSubjectId);
               // Get the reference to the Start button in the timer component
               const startButton = document.querySelector('[data-timer-start-button="true"]') as HTMLButtonElement;
               if (startButton) {
+                console.log("Start button found, clicking...");
                 startButton.click();
+              } else {
+                console.log("Start button not found!");
               }
             }}
             disabled={!selectedSubjectId}
