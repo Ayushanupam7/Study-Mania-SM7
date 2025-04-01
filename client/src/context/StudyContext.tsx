@@ -141,7 +141,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   ]);
   
   const [appColor, setAppColor] = useState('blue');
-  const [isDarkMode, setIsDarkMode] = useState(falsese);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
