@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStudyContext } from '@/context/StudyContext';
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Pencil, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
