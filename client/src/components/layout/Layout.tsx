@@ -7,8 +7,7 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-// Placeholder for the missing useStudyContext hook.  This needs to be implemented separately.
-const useStudyContext = () => ({ isDarkMode: false });
+import { useStudyContext } from '@/context/StudyContext';
 
 
 const Layout = ({ children }: LayoutProps) => {
