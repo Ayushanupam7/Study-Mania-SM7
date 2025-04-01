@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useStudyContext } from '@/context/StudyContext';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, Edit, Trash2, Check, X } from 'lucide-react';
+import { Calendar as CalendarIcon, Edit, Trash2, Check, X, Download } from 'lucide-react'; // Added Download icon
 import { format } from 'date-fns';
 import { formatStudyTime } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -38,6 +38,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { jsPDF } from "jspdf"; // Added jspdf import
+
 
 type EditingSession = {
   id: number;
@@ -50,31 +52,29 @@ const History = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<EditingSession | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined }); // Added dateRange state
+
   // Get total study time across all sessions
   const totalStudyTime = getTotalStudyTime();
   const formattedTotalStudyTime = formatStudyTime(totalStudyTime);
-  
+
   // For inline editing
   const commentsInputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Filter sessions by selected date if any
-  const filteredSessions = selectedDate 
+  // Filter sessions by selected date range if any
+  const filteredSessions = dateRange.from && dateRange.to
     ? studySessions.filter(session => {
         const sessionDate = new Date(session.date);
-        return (
-          sessionDate.getFullYear() === selectedDate.getFullYear() &&
-          sessionDate.getMonth() === selectedDate.getMonth() &&
-          sessionDate.getDate() === selectedDate.getDate()
-        );
+        return sessionDate >= dateRange.from && sessionDate <= dateRange.to;
       })
     : studySessions;
-  
+
+
   // Sort sessions by date (newest first)
   const sortedSessions = [...filteredSessions].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
-  
+
   // Handle opening edit dialog
   const handleEditClick = (session: typeof studySessions[0]) => {
     setEditingSession({
@@ -83,22 +83,29 @@ const History = () => {
     });
     setIsEditDialogOpen(true);
   };
-  
+
   // Handle saving comments
   const handleSaveComments = () => {
     if (!editingSession) return;
-    
+
     updateStudySession(editingSession.id, {
       comments: editingSession.comments
     });
-    
+
     setEditingSession(null);
     setIsEditDialogOpen(false);
   };
-  
+
   // Handle delete session
   const handleDeleteSession = (sessionId: number) => {
     deleteStudySession(sessionId);
+  };
+
+  const exportToPDF = () => {
+    // Placeholder for PDF export functionality.  Replace with actual PDF generation logic.
+    const doc = new jsPDF();
+    doc.text("Study History Report", 10, 10);
+    doc.save("study_history.pdf");
   };
 
   return (
@@ -117,39 +124,44 @@ const History = () => {
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
             <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={(date) => {
-                setSelectedDate(date);
-                setIsCalendarOpen(false);
-              }}
+              mode="range" // Changed to range selection
+              selected={dateRange} // Use dateRange for selection
+              onSelect={(date) => setDateRange(date)} // Update dateRange
               initialFocus
             />
-            {selectedDate && (
-              <div className="p-2 border-t border-slate-100">
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-center"
-                  onClick={() => {
-                    setSelectedDate(undefined);
-                    setIsCalendarOpen(false);
-                  }}
-                >
-                  Clear Selection
-                </Button>
-              </div>
-            )}
+            <div className="p-2 border-t border-slate-100">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-center"
+                onClick={() => {
+                  setDateRange({ from: undefined, to: undefined });
+                  setIsCalendarOpen(false);
+                }}
+              >
+                Clear Selection
+              </Button>
+            </div>
           </PopoverContent>
         </Popover>
+
+        <Button
+          variant="outline"
+          onClick={exportToPDF}
+          disabled={!dateRange.from || !dateRange.to}
+          className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-50"
+        >
+          <Download className="h-5 w-5 mr-2" />
+          Export PDF
+        </Button>
       </div>
-      
+
       {/* Total Study Time Summary */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
         <p className="text-lg font-medium">
           Total Study Time: {formattedTotalStudyTime}
         </p>
       </div>
-      
+
       {/* Study History Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <Table>
@@ -190,7 +202,7 @@ const History = () => {
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        
+
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
@@ -227,8 +239,8 @@ const History = () => {
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                  {selectedDate 
-                    ? 'No study sessions recorded for this date.'
+                  {dateRange.from && dateRange.to
+                    ? 'No study sessions recorded for this date range.'
                     : 'No study sessions recorded yet. Start studying to track your progress.'}
                 </TableCell>
               </TableRow>
@@ -236,7 +248,7 @@ const History = () => {
           </TableBody>
         </Table>
       </div>
-      
+
       {/* Edit Comments Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
@@ -246,7 +258,7 @@ const History = () => {
               Add details about what you studied during this session.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <Label htmlFor="comments">Comments</Label>
             <Textarea
@@ -260,7 +272,7 @@ const History = () => {
               rows={4}
             />
           </div>
-          
+
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
