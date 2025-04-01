@@ -228,7 +228,7 @@ const Settings = () => {
                   <div className="flex items-center gap-4">
                     <Avatar className="w-16 h-16">
                       {profileFormData.photoUrl ? (
-                        <img src={profileFormData.photoUrl} alt={profileFormData.name} className="w-full h-full object-cover rounded-full"/> {/* Added img tag */}
+                        <img src={profileFormData.photoUrl} alt={profileFormData.name} className="w-full h-full object-cover rounded-full"/>
                       ) : (
                         <span>{profileFormData.name.charAt(0)}</span>
                       )}
