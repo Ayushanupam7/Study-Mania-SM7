@@ -141,6 +141,17 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   ]);
   
   const [appColor, setAppColor] = useState('blue');
+  
+  useEffect(() => {
+    const hueValues = {
+      blue: '221.2',
+      purple: '270',
+      green: '142.4',
+      red: '0',
+      orange: '24.6'
+    };
+    document.documentElement.style.setProperty('--theme-hue', hueValues[appColor] || '221.2');
+  }, [appColor]);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const { toast } = useToast();
