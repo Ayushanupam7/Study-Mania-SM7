@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useStudyContext } from '@/context/StudyContext';
 import { Avatar } from '@/components/ui/avatar';
-import { Pencil } from 'lucide-react';
+import { Pencil, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,7 +29,7 @@ const Settings = () => {
     e.preventDefault();
     updateUser(profileFormData);
     setIsProfileDialogOpen(false);
-    
+
     toast({
       title: "Profile updated",
       description: "Your profile has been successfully updated.",
@@ -48,7 +48,7 @@ const Settings = () => {
     <div>
       <h1 className="text-2xl font-semibold mb-6">Settings</h1>
       <p className="text-slate-600 mb-8">Customize your Study Mania experience</p>
-      
+
       {/* Profile Section */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div className="flex items-center">
@@ -67,7 +67,7 @@ const Settings = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Settings Tabs */}
       <Tabs defaultValue="appearance" className="w-full">
         <TabsList className="border-b border-slate-200 mb-6 bg-transparent p-0 -mb-px flex space-x-8">
@@ -90,7 +90,7 @@ const Settings = () => {
             Notifications
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="appearance" className="mt-0">
           {/* App Color Settings */}
           <div className="mb-8 bg-card p-6 rounded-lg border">
@@ -121,7 +121,7 @@ const Settings = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Display Mode Settings */}
           <div className="bg-card p-6 rounded-lg border">
             <h2 className="flex items-center text-lg font-medium mb-4">
@@ -141,7 +141,7 @@ const Settings = () => {
                 </svg>
                 <span className="text-sm font-medium">Light</span>
               </button>
-              
+
               <button
                 className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all hover:bg-accent ${isDarkMode ? 'border-primary bg-accent' : 'border-transparent'}`}
                 onClick={() => setIsDarkMode(true)}
@@ -151,7 +151,7 @@ const Settings = () => {
                 </svg>
                 <span className="text-sm font-medium">Dark</span>
               </button>
-              
+
               <button
                 className={`p-4 rounded-lg border-2 flex flex-col items-center gap-2 transition-all hover:bg-accent ${false ? 'border-primary bg-accent' : 'border-transparent'}`}
                 onClick={() => {
@@ -167,7 +167,7 @@ const Settings = () => {
             </div>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="account">
           <div className="rounded-md border border-slate-200 p-6">
             <h2 className="text-lg font-medium mb-4">Account Settings</h2>
@@ -175,7 +175,7 @@ const Settings = () => {
             <p className="text-slate-500 text-sm italic">More account settings coming soon.</p>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="notifications">
           <div className="rounded-md border border-slate-200 p-6">
             <h2 className="text-lg font-medium mb-4">Notification Preferences</h2>
@@ -184,7 +184,7 @@ const Settings = () => {
           </div>
         </TabsContent>
       </Tabs>
-      
+
       {/* Profile Edit Dialog */}
       <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
