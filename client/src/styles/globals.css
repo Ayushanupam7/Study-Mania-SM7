@@ -89,23 +89,35 @@ body {
 .dark {
   --background: 222.2 47.4% 11.2%;
   --foreground: 210 40% 98%;
-  --card: 222.2 47.4% 13.2%;
+  --card: 222.2 47.4% 15%;
   --card-foreground: 210 40% 98%;
-  --popover: 222.2 47.4% 13.2%;
+  --popover: 222.2 47.4% 15%;
   --popover-foreground: 210 40% 98%;
   --primary: 217.2 91.2% 59.8%;
   --primary-foreground: 222.2 47.4% 11.2%;
-  --secondary: 217.2 32.6% 20%;
+  --secondary: 217.2 32.6% 17%;
   --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 20%;
+  --muted: 217.2 32.6% 17%;
   --muted-foreground: 215 20.2% 75%;
-  --accent: 217.2 32.6% 20%;
+  --accent: 217.2 32.6% 17%;
   --accent-foreground: 210 40% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 20%;
-  --input: 217.2 32.6% 20%;
+  --border: 217.2 32.6% 17%;
+  --input: 217.2 32.6% 17%;
   --ring: 224.3 76.3% 48%;
+}
+
+.dark .bg-white {
+  background-color: hsl(222.2 47.4% 15%);
+}
+
+.dark .bg-slate-50 {
+  background-color: hsl(222.2 47.4% 17%);
+}
+
+.dark .border-slate-200 {
+  border-color: hsl(222.2 47.4% 20%);
 }
 
 .dark body {
