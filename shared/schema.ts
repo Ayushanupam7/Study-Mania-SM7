@@ -106,20 +106,3 @@ export type PlannerItem = typeof plannerItems.$inferSelect;
 
 export type InsertStudySession = z.infer<typeof insertStudySessionSchema>;
 export type StudySession = typeof studySessions.$inferSelect;
-
-// Countdown table
-export const countdowns = pgTable("countdowns", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  duration: integer("duration").notNull(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-});
-
-export const insertCountdownSchema = createInsertSchema(countdowns).pick({
-  name: true,
-  duration: true,
-  userId: true,
-});
-
-export type InsertCountdown = z.infer<typeof insertCountdownSchema>;
-export type Countdown = typeof countdowns.$inferSelect;

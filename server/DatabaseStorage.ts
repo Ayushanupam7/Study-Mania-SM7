@@ -193,31 +193,4 @@ export class DatabaseStorage implements IStorage {
   async deleteStudySession(id: number): Promise<void> {
     await db.delete(studySessions).where(eq(studySessions.id, id));
   }
-
-  // Countdown operations
-  async getCountdowns(): Promise<Countdown[]> {
-    return db.select().from(countdowns).orderBy(countdowns.name);
-  }
-
-  async getCountdown(id: number): Promise<Countdown | undefined> {
-    const [countdown] = await db.select().from(countdowns).where(eq(countdowns.id, id));
-    return countdown;
-  }
-
-  async createCountdown(countdown: InsertCountdown): Promise<Countdown> {
-    const [newCountdown] = await db.insert(countdowns).values(countdown).returning();
-    return newCountdown;
-  }
-
-  async updateCountdown(id: number, countdownData: Partial<Countdown>): Promise<Countdown | undefined> {
-    const [updatedCountdown] = await db.update(countdowns)
-      .set(countdownData)
-      .where(eq(countdowns.id, id))
-      .returning();
-    return updatedCountdown;
-  }
-
-  async deleteCountdown(id: number): Promise<void> {
-    await db.delete(countdowns).where(eq(countdowns.id, id));
-  }
 }
