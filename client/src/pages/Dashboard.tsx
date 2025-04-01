@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { useStudyContext } from '@/context/StudyContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
