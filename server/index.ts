@@ -1,6 +1,23 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeDatabase } from './db';
+import { MemStorage, storage, IStorage } from './storage';
+import { DatabaseStorage } from './DatabaseStorage';
+
+// Choose storage implementation based on DATABASE_URL environment variable
+let storageImplementation: IStorage = storage;
+
+if (process.env.DATABASE_URL) {
+  log('Using PostgreSQL storage implementation');
+  storageImplementation = new DatabaseStorage();
+} else {
+  log('Using in-memory storage implementation');
+  storageImplementation = new MemStorage();
+}
+
+// Export the storage instance for use in routes
+export { storageImplementation as storage };
 
 const app = express();
 app.use(express.json());
@@ -37,6 +54,15 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize database if PostgreSQL is configured
+  if (process.env.DATABASE_URL) {
+    const dbInitialized = await initializeDatabase();
+    if (!dbInitialized) {
+      log('WARNING: Database initialization failed. Falling back to in-memory storage.');
+      storageImplementation = new MemStorage();
+    }
+  }
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

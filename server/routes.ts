@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./index"; // Import storage from index.ts
 import { insertUserSchema, insertSubjectSchema, insertFlashcardSchema, insertPlannerItemSchema, insertStudySessionSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
