@@ -65,39 +65,46 @@ const SubjectCard = ({ id, name, description, colorClass, totalStudyTime }: Subj
   return (
     <>
       <Card 
-        className={`bg-white rounded-lg shadow-sm overflow-hidden border-t-4 ${colorClass} cursor-pointer transform transition-all duration-150 hover:shadow-md`}
+        className={`relative rounded-lg shadow-sm overflow-hidden cursor-pointer transform transition-all duration-150 hover:shadow-md ${
+          colorClass === 'border-blue-500' ? 'bg-gradient-to-r from-blue-500 to-blue-400' :
+          colorClass === 'border-yellow-500' ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
+          colorClass === 'border-green-500' ? 'bg-gradient-to-r from-green-500 to-green-400' :
+          colorClass === 'border-red-500' ? 'bg-gradient-to-r from-red-500 to-red-400' :
+          colorClass === 'border-purple-500' ? 'bg-gradient-to-r from-purple-500 to-purple-400' :
+          'bg-gradient-to-r from-orange-500 to-orange-400'
+        }`}
       >
         <div className="relative">
           <div className="p-4" onClick={handleSubjectClick}>
             <div className="flex items-start justify-between mb-3">
-              <h3 className="font-semibold text-lg">{name}</h3>
-              <div className="flex gap-1 items-center text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
+              <h3 className="font-semibold text-lg text-white">{name}</h3>
+              <div className="flex gap-1 items-center text-xs font-medium bg-white/20 text-white px-2 py-1 rounded-full backdrop-blur-sm">
                 <Clock className="h-3 w-3" />
                 <span>{formattedStudyTime}</span>
               </div>
             </div>
             
-            <p className="text-sm text-slate-600 mb-3">{description}</p>
+            <p className="text-sm text-white/80 mb-3">{description}</p>
             
             <div className="grid grid-cols-3 gap-2 mb-2">
-              <div className="flex flex-col items-center justify-center p-1 bg-slate-50 rounded-md text-slate-600">
+              <div className="flex flex-col items-center justify-center p-1 bg-white/10 rounded-md text-white backdrop-blur-sm">
                 <Clock className="h-4 w-4 mb-1" />
                 <span className="text-xs">Study</span>
               </div>
-              <div className="flex flex-col items-center justify-center p-1 bg-slate-50 rounded-md text-slate-600">
+              <div className="flex flex-col items-center justify-center p-1 bg-white/10 rounded-md text-white backdrop-blur-sm">
                 <BookOpen className="h-4 w-4 mb-1" />
                 <span className="text-xs">Flashcards</span>
               </div>
-              <div className="flex flex-col items-center justify-center p-1 bg-slate-50 rounded-md text-slate-600">
+              <div className="flex flex-col items-center justify-center p-1 bg-white/10 rounded-md text-white backdrop-blur-sm">
                 <Calendar className="h-4 w-4 mb-1" />
                 <span className="text-xs">Tasks</span>
               </div>
             </div>
           </div>
           
-          <div className="flex border-t border-slate-100 text-sm">
+          <div className="flex border-t border-white/10 text-sm">
             <button 
-              className="flex-1 py-2 text-slate-600 hover:bg-slate-50 flex justify-center"
+              className="flex-1 py-2 text-white hover:bg-white/10 flex justify-center"
               onClick={(e) => {
                 e.preventDefault();
                 setIsEditDialogOpen(true);
