@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { useStudyContext } from '@/context/StudyContext';
-import { Button } from '@/components/ui/button';
-import { 
-  Plus, 
-  Calendar as CalendarIcon, 
-  Clock, 
-  BookOpen, 
-  Check, 
-  Timer, 
-  AlertCircle
-} from 'lucide-react';
-import { format, startOfWeek, addDays, isSameDay, isToday } from 'date-fns';
-import { 
+import { useState } from "react";
+import { useStudyContext } from "@/context/StudyContext";
+import { Button } from "@/components/ui/button";
+import {
+  Plus,
+  Calendar as CalendarIcon,
+  Clock,
+  BookOpen,
+  Check,
+  Timer,
+  AlertCircle,
+} from "lucide-react";
+import { format, startOfWeek, addDays, isSameDay, isToday } from "date-fns";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -19,97 +19,110 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import PlannerItem from '@/components/ui/PlannerItem';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import PlannerItem from "@/components/ui/PlannerItem";
 
 const Planner = () => {
-  const { 
-    plannerItems, 
-    subjects, 
-    createPlannerItem, 
+  const {
+    plannerItems,
+    subjects,
+    createPlannerItem,
     recordStudySession,
-    studySessions
+    studySessions,
   } = useStudyContext();
-  
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSessionDialogOpen, setIsSessionDialogOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'week' | 'list'>('week');
+  const [viewMode, setViewMode] = useState<"week" | "list">("week");
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     date: new Date(),
     isCompleted: false,
-    subjectId: null as number | null
+    subjectId: null as number | null,
   });
-  
+
   const [sessionData, setSessionData] = useState({
     subjectId: subjects.length > 0 ? subjects[0].id : 1,
     duration: 30,
-    comments: ''
+    comments: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createPlannerItem(formData);
     setFormData({
-      title: '',
-      description: '',
+      title: "",
+      description: "",
       date: new Date(),
       isCompleted: false,
-      subjectId: null
+      subjectId: null,
     });
     setIsDialogOpen(false);
   };
 
   // Calculate the start of the week
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
-  
+
   // Group tasks by day of the week
   const tasksByDay: Record<string, typeof plannerItems> = {};
-  
+
   // Initialize days of the week
   for (let i = 0; i < 7; i++) {
     const day = addDays(weekStart, i);
-    const dayStr = format(day, 'yyyy-MM-dd');
+    const dayStr = format(day, "yyyy-MM-dd");
     tasksByDay[dayStr] = [];
   }
-  
+
   // Populate tasks for each day
-  plannerItems.forEach(item => {
+  plannerItems.forEach((item) => {
     try {
       // Handle invalid date values gracefully
       let itemDate: Date;
-      
+
       if (item.date === null || item.date === undefined) {
         console.warn("Found item with null/undefined date:", item);
         itemDate = new Date(); // Default to today if date is invalid
       } else {
         itemDate = new Date(item.date);
-        
+
         // Check if date is valid
         if (isNaN(itemDate.getTime())) {
           console.warn("Invalid date format encountered:", item.date);
           itemDate = new Date(); // Default to today if date is invalid
         }
       }
-      
-      const dayStr = format(itemDate, 'yyyy-MM-dd');
-      
-      if (viewMode === 'week') {
+
+      const dayStr = format(itemDate, "yyyy-MM-dd");
+
+      if (viewMode === "week") {
         // Only include tasks from current week
         const itemWeekStart = startOfWeek(itemDate, { weekStartsOn: 0 });
         const currentWeekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
-        
-        if (format(itemWeekStart, 'yyyy-MM-dd') === format(currentWeekStart, 'yyyy-MM-dd')) {
+
+        if (
+          format(itemWeekStart, "yyyy-MM-dd") ===
+          format(currentWeekStart, "yyyy-MM-dd")
+        ) {
           if (!tasksByDay[dayStr]) {
             tasksByDay[dayStr] = [];
           }
@@ -132,55 +145,61 @@ const Planner = () => {
       <div className="flex justify-between items-center mb-2">
         <div>
           <h1 className="text-2xl font-semibold">Planner</h1>
-          <p className="text-slate-600">Organize your study tasks and deadlines</p>
+          <p className="text-slate-600">
+            Organize your study tasks and deadlines
+          </p>
         </div>
         <div className="flex space-x-2">
           <div className="flex rounded-lg border border-slate-200 overflow-hidden">
-            <button 
+            <button
               className={`px-4 py-1.5 font-medium ${
-                viewMode === 'week' 
-                  ? 'bg-white text-slate-800'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                viewMode === "week"
+                  ? "bg-white text-slate-800"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
-              onClick={() => setViewMode('week')}
+              onClick={() => setViewMode("week")}
             >
               Week View
             </button>
-            <button 
+            <button
               className={`px-4 py-1.5 font-medium ${
-                viewMode === 'list' 
-                  ? 'bg-white text-slate-800'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                viewMode === "list"
+                  ? "bg-white text-slate-800"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
-              onClick={() => setViewMode('list')}
+              onClick={() => setViewMode("list")}
             >
               Task List
             </button>
           </div>
-          
+
           {/* Record Study Session Dialog */}
-          <Dialog open={isSessionDialogOpen} onOpenChange={setIsSessionDialogOpen}>
+          <Dialog
+            open={isSessionDialogOpen}
+            onOpenChange={setIsSessionDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button className="px-4 py-1.5 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 flex items-center">
                 <Clock className="h-5 w-5 mr-1" />
-                Record Session
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                recordStudySession(
-                  sessionData.subjectId, 
-                  sessionData.duration, 
-                  sessionData.comments || undefined
-                );
-                setSessionData({
-                  subjectId: subjects.length > 0 ? subjects[0].id : 1,
-                  duration: 30,
-                  comments: ''
-                });
-                setIsSessionDialogOpen(false);
-              }}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  recordStudySession(
+                    sessionData.subjectId,
+                    sessionData.duration,
+                    sessionData.comments || undefined,
+                  );
+                  setSessionData({
+                    subjectId: subjects.length > 0 ? subjects[0].id : 1,
+                    duration: 30,
+                    comments: "",
+                  });
+                  setIsSessionDialogOpen(false);
+                }}
+              >
                 <DialogHeader>
                   <DialogTitle>Record Study Session</DialogTitle>
                   <DialogDescription>
@@ -192,10 +211,13 @@ const Planner = () => {
                     <Label htmlFor="session-subject" className="text-right">
                       Subject
                     </Label>
-                    <Select 
+                    <Select
                       value={sessionData.subjectId.toString()}
-                      onValueChange={(value) => 
-                        setSessionData({ ...sessionData, subjectId: parseInt(value) })
+                      onValueChange={(value) =>
+                        setSessionData({
+                          ...sessionData,
+                          subjectId: parseInt(value),
+                        })
                       }
                     >
                       <SelectTrigger className="col-span-3">
@@ -203,14 +225,17 @@ const Planner = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {subjects.map((subject) => (
-                          <SelectItem key={subject.id} value={subject.id.toString()}>
+                          <SelectItem
+                            key={subject.id}
+                            value={subject.id.toString()}
+                          >
                             {subject.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="session-duration" className="text-right">
                       Duration (min)
@@ -221,15 +246,17 @@ const Planner = () => {
                       min="1"
                       max="720"
                       value={sessionData.duration}
-                      onChange={(e) => setSessionData({ 
-                        ...sessionData, 
-                        duration: parseInt(e.target.value) || 30
-                      })}
+                      onChange={(e) =>
+                        setSessionData({
+                          ...sessionData,
+                          duration: parseInt(e.target.value) || 30,
+                        })
+                      }
                       className="col-span-3"
                       required
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="session-comments" className="text-right">
                       Comments
@@ -237,21 +264,29 @@ const Planner = () => {
                     <Textarea
                       id="session-comments"
                       value={sessionData.comments}
-                      onChange={(e) => setSessionData({ ...sessionData, comments: e.target.value })}
+                      onChange={(e) =>
+                        setSessionData({
+                          ...sessionData,
+                          comments: e.target.value,
+                        })
+                      }
                       placeholder="What did you study? How productive was your session?"
                       className="col-span-3"
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                  <Button
+                    type="submit"
+                    className="bg-green-600 hover:bg-green-700"
+                  >
                     Save Session
                   </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
-          
+
           {/* Add Task Dialog */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -276,7 +311,9 @@ const Planner = () => {
                     <Input
                       id="title"
                       value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
                       className="col-span-3"
                       required
                     />
@@ -288,7 +325,12 @@ const Planner = () => {
                     <Textarea
                       id="description"
                       value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
                       className="col-span-3"
                     />
                   </div>
@@ -304,14 +346,16 @@ const Planner = () => {
                             className="w-full justify-start text-left font-normal"
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {format(formData.date, 'PPP')}
+                            {format(formData.date, "PPP")}
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
                             selected={formData.date}
-                            onSelect={(date) => date && setFormData({ ...formData, date })}
+                            onSelect={(date) =>
+                              date && setFormData({ ...formData, date })
+                            }
                             initialFocus
                           />
                         </PopoverContent>
@@ -322,10 +366,13 @@ const Planner = () => {
                     <Label htmlFor="subject" className="text-right">
                       Subject
                     </Label>
-                    <Select 
-                      value={formData.subjectId?.toString() || 'null'}
-                      onValueChange={(value) => 
-                        setFormData({ ...formData, subjectId: value === 'null' ? null : parseInt(value) })
+                    <Select
+                      value={formData.subjectId?.toString() || "null"}
+                      onValueChange={(value) =>
+                        setFormData({
+                          ...formData,
+                          subjectId: value === "null" ? null : parseInt(value),
+                        })
                       }
                     >
                       <SelectTrigger className="col-span-3">
@@ -334,7 +381,10 @@ const Planner = () => {
                       <SelectContent>
                         <SelectItem value="null">No Subject</SelectItem>
                         {subjects.map((subject) => (
-                          <SelectItem key={subject.id} value={subject.id.toString()}>
+                          <SelectItem
+                            key={subject.id}
+                            value={subject.id.toString()}
+                          >
                             {subject.name}
                           </SelectItem>
                         ))}
@@ -350,13 +400,13 @@ const Planner = () => {
           </Dialog>
         </div>
       </div>
-      
+
       {/* Recent Study Sessions Section */}
       <div className="mb-6 mt-4">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-semibold">Recent Study Sessions</h2>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="flex items-center gap-1 text-green-600 border-green-200 hover:bg-green-50"
             onClick={() => setIsSessionDialogOpen(true)}
           >
@@ -364,22 +414,30 @@ const Planner = () => {
             Record New Session
           </Button>
         </div>
-        
+
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           {studySessions.length > 0 ? (
             <div className="overflow-x-auto">
-              <div className="flex gap-4 p-4" style={{ minWidth: "100%", width: "max-content" }}>
+              <div
+                className="flex gap-4 p-4"
+                style={{ minWidth: "100%", width: "max-content" }}
+              >
                 {studySessions
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .sort(
+                    (a, b) =>
+                      new Date(b.date).getTime() - new Date(a.date).getTime(),
+                  )
                   .slice(0, 8) // Show more sessions in the horizontal scroll
-                  .map(session => {
-                    const subject = subjects.find(s => s.id === session.subjectId);
+                  .map((session) => {
+                    const subject = subjects.find(
+                      (s) => s.id === session.subjectId,
+                    );
                     const colorClass = subject?.colorClass || "border-blue-500";
                     const textColorClass = colorClass.replace("border", "text");
-                    
+
                     return (
-                      <div 
-                        key={session.id} 
+                      <div
+                        key={session.id}
                         className="flex-shrink-0 w-64 p-4 rounded-lg border border-slate-200 hover:shadow-md transition-shadow"
                       >
                         <div className="flex items-start gap-3 mb-2">
@@ -388,10 +446,10 @@ const Planner = () => {
                           </div>
                           <div>
                             <div className={`font-medium ${textColorClass}`}>
-                              {subject?.name || 'Unknown Subject'}
+                              {subject?.name || "Unknown Subject"}
                             </div>
                             <div className="text-sm text-slate-500">
-                              {format(new Date(session.date), 'MMM d • h:mm a')}
+                              {format(new Date(session.date), "MMM d • h:mm a")}
                             </div>
                           </div>
                           {isToday(new Date(session.date)) && (
@@ -400,15 +458,19 @@ const Planner = () => {
                             </div>
                           )}
                         </div>
-                        
+
                         <div className="text-lg font-medium text-center py-2 border-t border-b border-slate-100 my-2">
                           {session.duration} minutes
                         </div>
-                        
+
                         {session.comments ? (
-                          <p className="text-sm text-slate-600 line-clamp-2">{session.comments}</p>
+                          <p className="text-sm text-slate-600 line-clamp-2">
+                            {session.comments}
+                          </p>
                         ) : (
-                          <p className="text-sm text-slate-400 italic">No comments</p>
+                          <p className="text-sm text-slate-400 italic">
+                            No comments
+                          </p>
                         )}
                       </div>
                     );
@@ -420,13 +482,15 @@ const Planner = () => {
               <div className="bg-slate-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
                 <Clock className="h-6 w-6 text-slate-400" />
               </div>
-              <h3 className="text-lg font-medium text-slate-600 mb-1">No study sessions yet</h3>
+              <h3 className="text-lg font-medium text-slate-600 mb-1">
+                No study sessions yet
+              </h3>
               <p className="text-sm text-slate-500 mb-4">
                 Record your first study session to start tracking your progress
               </p>
-              <Button 
+              <Button
                 variant="outline"
-                className="border-green-200 text-green-600 hover:bg-green-50" 
+                className="border-green-200 text-green-600 hover:bg-green-50"
                 onClick={() => setIsSessionDialogOpen(true)}
               >
                 <Clock className="h-4 w-4 mr-2" />
@@ -436,20 +500,19 @@ const Planner = () => {
           )}
         </div>
       </div>
-      
+
       {/* Week Selection */}
       <div className="relative max-w-xs mb-6">
         <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
           <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-start text-left font-normal px-4 py-2 border border-slate-300 rounded-md bg-white"
             >
               <CalendarIcon className="mr-2 h-5 w-5 text-slate-600" />
-              {viewMode === 'week' 
-                ? `Week of ${format(weekStart, 'MMMM d, yyyy')}`
-                : 'All Tasks'
-              }
+              {viewMode === "week"
+                ? `Week of ${format(weekStart, "MMMM d, yyyy")}`
+                : "All Tasks"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
@@ -467,134 +530,152 @@ const Planner = () => {
           </PopoverContent>
         </Popover>
       </div>
-      
+
       {/* Weekly Tasks */}
       <div className="space-y-6">
-        {viewMode === 'week' ? (
-          // Week view
-          Object.entries(tasksByDay)
-            .sort(([dayA], [dayB]) => {
-              try {
-                return new Date(dayA).getTime() - new Date(dayB).getTime();
-              } catch (error) {
-                console.error("Error sorting dates:", dayA, dayB, error);
-                return 0;
-              }
-            })
-            .map(([dayStr, tasks]) => {
-              if (tasks.length === 0) return null;
-              
-              try {
-                const dayDate = new Date(dayStr);
-                // Validate date before formatting
-                if (isNaN(dayDate.getTime())) {
-                  console.warn("Invalid date string:", dayStr);
+        {viewMode === "week"
+          ? // Week view
+            Object.entries(tasksByDay)
+              .sort(([dayA], [dayB]) => {
+                try {
+                  return new Date(dayA).getTime() - new Date(dayB).getTime();
+                } catch (error) {
+                  console.error("Error sorting dates:", dayA, dayB, error);
+                  return 0;
+                }
+              })
+              .map(([dayStr, tasks]) => {
+                if (tasks.length === 0) return null;
+
+                try {
+                  const dayDate = new Date(dayStr);
+                  // Validate date before formatting
+                  if (isNaN(dayDate.getTime())) {
+                    console.warn("Invalid date string:", dayStr);
+                    return null;
+                  }
+
+                  const dayName = format(dayDate, "EEEE");
+                  const formattedDate = format(dayDate, "MMMM d, yyyy");
+
+                  return (
+                    <Card
+                      key={dayStr}
+                      className="bg-white rounded-lg shadow-sm overflow-hidden"
+                    >
+                      <CardHeader className="p-4 flex justify-between items-center border-b border-slate-100">
+                        <div>
+                          <h3 className="font-medium text-lg">{dayName}</h3>
+                          <p className="text-sm text-slate-500">
+                            {formattedDate}
+                          </p>
+                        </div>
+                        <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                          {tasks.length} {tasks.length === 1 ? "item" : "items"}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0 divide-y divide-slate-100">
+                        {tasks.map((task) => (
+                          <PlannerItem
+                            key={task.id}
+                            id={task.id}
+                            title={task.title}
+                            description={task.description}
+                            date={task.date}
+                            isCompleted={task.isCompleted}
+                            subjectId={task.subjectId}
+                          />
+                        ))}
+                      </CardContent>
+                    </Card>
+                  );
+                } catch (error) {
+                  console.error("Error rendering task card:", dayStr, error);
                   return null;
                 }
-                
-                const dayName = format(dayDate, 'EEEE');
-                const formattedDate = format(dayDate, 'MMMM d, yyyy');
-                
-                return (
-                  <Card key={dayStr} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <CardHeader className="p-4 flex justify-between items-center border-b border-slate-100">
-                      <div>
-                        <h3 className="font-medium text-lg">{dayName}</h3>
-                        <p className="text-sm text-slate-500">{formattedDate}</p>
-                      </div>
-                      <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
-                        {tasks.length} {tasks.length === 1 ? 'item' : 'items'}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-0 divide-y divide-slate-100">
-                      {tasks.map((task) => (
-                        <PlannerItem
-                          key={task.id}
-                          id={task.id}
-                          title={task.title}
-                          description={task.description}
-                          date={task.date}
-                          isCompleted={task.isCompleted}
-                          subjectId={task.subjectId}
-                        />
-                      ))}
-                    </CardContent>
-                  </Card>
-                );
-              } catch (error) {
-                console.error("Error rendering task card:", dayStr, error);
-                return null;
-              }
-            })
-        ) : (
-          // List view - show all tasks grouped by date
-          Object.entries(tasksByDay)
-            .filter(([_, tasks]) => tasks.length > 0)
-            .sort(([dayA], [dayB]) => {
-              try {
-                return new Date(dayA).getTime() - new Date(dayB).getTime();
-              } catch (error) {
-                console.error("Error sorting dates in list view:", dayA, dayB, error);
-                return 0;
-              }
-            })
-            .map(([dayStr, tasks]) => {
-              try {
-                const dayDate = new Date(dayStr);
-                
-                // Validate date before formatting
-                if (isNaN(dayDate.getTime())) {
-                  console.warn("Invalid date string in list view:", dayStr);
+              })
+          : // List view - show all tasks grouped by date
+            Object.entries(tasksByDay)
+              .filter(([_, tasks]) => tasks.length > 0)
+              .sort(([dayA], [dayB]) => {
+                try {
+                  return new Date(dayA).getTime() - new Date(dayB).getTime();
+                } catch (error) {
+                  console.error(
+                    "Error sorting dates in list view:",
+                    dayA,
+                    dayB,
+                    error,
+                  );
+                  return 0;
+                }
+              })
+              .map(([dayStr, tasks]) => {
+                try {
+                  const dayDate = new Date(dayStr);
+
+                  // Validate date before formatting
+                  if (isNaN(dayDate.getTime())) {
+                    console.warn("Invalid date string in list view:", dayStr);
+                    return null;
+                  }
+
+                  const dayName = format(dayDate, "EEEE");
+                  const formattedDate = format(dayDate, "MMMM d, yyyy");
+
+                  return (
+                    <Card
+                      key={dayStr}
+                      className="bg-white rounded-lg shadow-sm overflow-hidden"
+                    >
+                      <CardHeader className="p-4 flex justify-between items-center border-b border-slate-100">
+                        <div>
+                          <h3 className="font-medium text-lg">{dayName}</h3>
+                          <p className="text-sm text-slate-500">
+                            {formattedDate}
+                          </p>
+                        </div>
+                        <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                          {tasks.length} {tasks.length === 1 ? "item" : "items"}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0 divide-y divide-slate-100">
+                        {tasks.map((task) => (
+                          <PlannerItem
+                            key={task.id}
+                            id={task.id}
+                            title={task.title}
+                            description={task.description}
+                            date={task.date}
+                            isCompleted={task.isCompleted}
+                            subjectId={task.subjectId}
+                          />
+                        ))}
+                      </CardContent>
+                    </Card>
+                  );
+                } catch (error) {
+                  console.error(
+                    "Error rendering list view task card:",
+                    dayStr,
+                    error,
+                  );
                   return null;
                 }
-                
-                const dayName = format(dayDate, 'EEEE');
-                const formattedDate = format(dayDate, 'MMMM d, yyyy');
-                
-                return (
-                  <Card key={dayStr} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <CardHeader className="p-4 flex justify-between items-center border-b border-slate-100">
-                      <div>
-                        <h3 className="font-medium text-lg">{dayName}</h3>
-                        <p className="text-sm text-slate-500">{formattedDate}</p>
-                      </div>
-                      <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
-                        {tasks.length} {tasks.length === 1 ? 'item' : 'items'}
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-0 divide-y divide-slate-100">
-                      {tasks.map((task) => (
-                        <PlannerItem
-                          key={task.id}
-                          id={task.id}
-                          title={task.title}
-                          description={task.description}
-                          date={task.date}
-                          isCompleted={task.isCompleted}
-                          subjectId={task.subjectId}
-                        />
-                      ))}
-                    </CardContent>
-                  </Card>
-                );
-              } catch (error) {
-                console.error("Error rendering list view task card:", dayStr, error);
-                return null;
-              }
-            })
-        )}
-        
+              })}
+
         {/* Empty state */}
-        {Object.values(tasksByDay).every(tasks => tasks.length === 0) && (
+        {Object.values(tasksByDay).every((tasks) => tasks.length === 0) && (
           <div className="text-center py-12 bg-white rounded-lg border border-dashed border-slate-300">
-            <h3 className="text-lg font-medium text-slate-600 mb-2">No tasks scheduled</h3>
+            <h3 className="text-lg font-medium text-slate-600 mb-2">
+              No tasks scheduled
+            </h3>
             <p className="text-slate-500 mb-4">
-              {viewMode === 'week' 
-                ? 'Add your first task to start planning your week.'
-                : 'No tasks found in your planner.'
-              }
+              {viewMode === "week"
+                ? "Add your first task to start planning your week."
+                : "No tasks found in your planner."}
             </p>
-            <Button 
+            <Button
               onClick={() => setIsDialogOpen(true)}
               className="px-4 py-2 bg-primary text-white rounded-md font-medium"
             >
