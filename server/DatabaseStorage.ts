@@ -33,6 +33,10 @@ export class DatabaseStorage implements IStorage {
     return updatedUser;
   }
 
+  async updateDarkMode(id: number, isDarkMode: boolean): Promise<User | undefined> {
+    return this.updateUser(id, { isDarkMode });
+  }
+
   async getDefaultUser(): Promise<User | undefined> {
     // Get the first user in the database (our default user for now)
     const [user] = await db.select().from(users).limit(1);

@@ -1,0 +1,17 @@
+# Start Terminal
+# Start PgAdmin
+
+# Install dependencies
+npm install 
+
+# Check if port 3000 is in use
+netstat -ano | findstr :3000
+# If something is listening on port 3000, terminate it
+taskkill /PID 0 /F
+
+# Start Backend
+npm run dev
+npx tsx server/index.ts
+
+# Start Frontend
+npx vite --port 3000
