@@ -720,6 +720,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+
 // Hook for using the context
 export const useStudyContext = () => {
   const context = useContext(StudyContext);

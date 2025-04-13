@@ -7,6 +7,7 @@ npm install
 # Check if port 3000 is in use
 netstat -ano | findstr :3000
 # If something is listening on port 3000, terminate it
+taskkill /PID 1724 /F
 taskkill /PID 0 /F
 
 # Start Backend
@@ -15,3 +16,7 @@ npx tsx server/index.ts
 
 # Start Frontend
 npx vite --port 3000
+
+----------------------------------------
+
+#only run bat file

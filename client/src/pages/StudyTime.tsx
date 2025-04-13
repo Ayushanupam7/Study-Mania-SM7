@@ -8,20 +8,33 @@ import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
 
 const StudyTime = () => {
-  const { subjects, getTotalStudyTimeForToday } = useStudyContext();
+  const { subjects, getTotalStudyTimeForToday, isFocusMode, setIsFocusMode } = useStudyContext();
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
-  
   const todaysStudyTime = getTotalStudyTimeForToday();
   const formattedTodaysStudyTime = formatStudyTime(todaysStudyTime);
   
+  const handleQuickStart = () => {
+    try {
+      const startButton = document.querySelector('[data-timer-start-button="true"]') as HTMLButtonElement;
+      if (startButton) {
+        startButton.click();
+        setIsFocusMode(true);
+      } else {
+        console.warn('Timer start button not found');
+      }
+    } catch (error) {
+      console.error('Error starting timer:', error);
+    }
+  };
+
   return (
-    <div>
+    <div className={isFocusMode ? "focus-mode" : ""}>
       <h1 className="text-2xl font-semibold mb-2">Study Time</h1>
-      <p className="text-slate-600 mb-6">Track your study sessions with different timer modes</p>
+      <p className="text-muted-foreground mb-6">Track your study sessions with different timer modes</p>
       
       {/* Today's Study Time */}
       <div className="mb-8">
-        <h2 className="text-sm font-medium text-slate-500 mb-1">Today's Total Study Time</h2>
+        <h2 className="text-sm font-medium text-muted-foreground mb-1">Today's Total Study Time</h2>
         <div className="text-3xl font-semibold">{formattedTodaysStudyTime}</div>
       </div>
       
@@ -29,7 +42,7 @@ const StudyTime = () => {
       <div className="mb-6">
         <Label 
           htmlFor="subject-select" 
-          className="block text-sm text-slate-600 mb-2"
+          className="block text-sm text-muted-foreground mb-2"
         >
           Select a subject for this study session:
         </Label>
@@ -41,7 +54,7 @@ const StudyTime = () => {
                 setSelectedSubjectId(value === 'no-subject' ? null : parseInt(value))
               }
             >
-              <SelectTrigger className="w-full bg-white">
+              <SelectTrigger className="w-full bg-background">
                 <SelectValue placeholder="No Subject" />
               </SelectTrigger>
               <SelectContent>
@@ -56,18 +69,8 @@ const StudyTime = () => {
           </div>
           
           <Button 
-            className="bg-primary text-white hover:bg-blue-700 flex items-center"
-            onClick={() => {
-              console.log("Quick Start clicked for subject:", selectedSubjectId);
-              // Get the reference to the Start button in the timer component
-              const startButton = document.querySelector('[data-timer-start-button="true"]') as HTMLButtonElement;
-              if (startButton) {
-                console.log("Start button found, clicking...");
-                startButton.click();
-              } else {
-                console.log("Start button not found!");
-              }
-            }}
+            variant="default"
+            onClick={handleQuickStart}
             disabled={!selectedSubjectId}
           >
             <Play className="h-5 w-5 mr-2" />
